@@ -16,3 +16,5 @@
 *.ko
 *.o
 .*.*
+
+lib/options.h
