@@ -71,7 +71,7 @@ in the `utils` directory. The `signal` program lets you send whatever signal you
 Clients can send commands to WKIT, can see hidden files, processes and file contents.
 They can also kill hidden processes.
 
-### Sending commands
+#### Sending commands
 After registering your userland malware as a client, you can send commands to the rootkit 
 using the `/proc/wkit_dev[USUM]` device. If you want to play around, you can use
 the `cmd` program in the `utils` directory, which registers itself as a client and sends 
