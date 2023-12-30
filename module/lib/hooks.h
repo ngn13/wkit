@@ -1,0 +1,9 @@
+extern asmlinkage long h_getdents(const struct pt_regs*);
+extern asmlinkage long h_getdents64(const struct pt_regs*);
+extern asmlinkage long h_openat(const struct pt_regs*);
+extern asmlinkage long h_newfstatat(const struct pt_regs*);
+extern asmlinkage long h_statx(const struct pt_regs*);
+extern asmlinkage long h_unlinkat(const struct pt_regs*);
+extern asmlinkage long h_kill(const struct pt_regs*);
+extern asmlinkage long h_chdir(const struct pt_regs*);
+extern asmlinkage long h_read(const struct pt_regs*);
