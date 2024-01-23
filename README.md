@@ -41,14 +41,14 @@ this script will:
 - load the kernel module
 
 lastly cleanup the sources:
-```
+```bash
 cd .. && rm -rf wkit
 ```
 
 ## usage
 start a netcat listener on the host and port you specified during
 the installation:
-```
+```bash
 nc -lnvp <port>
 ```
 userland agent attempts to make connection with this address every 
