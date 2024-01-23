@@ -1,4 +1,7 @@
 <h1 align="center">
+  <img src="assets/showcase.png">
+  </br>
+  </br>
   wkit | a rootkit for modern kernels
 </h1>
 
