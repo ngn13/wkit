@@ -8,17 +8,39 @@
   <body>
     {% include "parts/navbar.html" %}
     <main>
-      <h1>{{dir}}</h1>
+      <h1 class="path">{{dir}}</h1>
 
       {% if error %}
-        <h3 class="error">directory list failed: {{error}}</h3>
+        <h3 class="details">directory list failed: {{error}}</h3>
+      {% else %}
+        <h3 class="details">listing <strong>{{entries|length}}</strong> entries</h3>
+        <table class="list">
+          <tr>
+            <th>Name</th>
+            <th>Size</th>
+            <th>Permissions</th>
+            <th>UID</th>
+            <th>GID</th>
+            <th>Modification Date</th>
+            <th>Creation Date</th>
+          </tr>
+          {% for e in entries %}
+            <tr>
+              {% if e.IsDir %}
+                <td><a href="?p={{qescape(join(dir, e.Name))}}">{{e.Name}}</a></td>
+              {% else %}
+                <td>{{e.Name}}</td>
+              {% endif %}
+              <td>{{e.HumanSize()}}</td>
+              <td>{{e.Perms()}}</td>
+              <td>{{e.UID}}</td>
+              <td>{{e.GID}}</td>
+              <td>{{e.ModificationTime()}}</td>
+              <td>{{e.CreationTime()}}</td>
+            </tr>
+          {% endfor %}
+        </table>
       {% endif %}
-
-      <div class="list">
-        {% for e in entries %}
-          {{e.Name}}
-        {% endfor %}
-      </div>
     </main>
   </body>
 </html>

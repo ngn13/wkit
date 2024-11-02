@@ -3,15 +3,15 @@
 #include "inc/res.h"
 
 #include <errno.h>
+#include <time.h>
+
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
-#include <time.h>
 #include <unistd.h>
 
-#define job_debug(j, m, ...) debug("(job: %s) " m, j->id, __VA_ARGS__)
-#define __job_req_send(j)    (req_send(&j->req, j->client))
-#define __job_res_recv(j)    (res_recv(&j->res, j->client))
+#define __job_req_send(j) (req_send(&j->req, j->client))
+#define __job_res_recv(j) (res_recv(&j->res, j->client))
 
 bool job_new(job_t *job, client_t *client) {
   if (NULL == client) {
@@ -59,25 +59,25 @@ bool job_recv(job_t *job, bool allow_new) {
 
   // send a job request
   if (__job_req_send(job) < 0) {
-    job_debug(job, "failed to send the job request: %s", strerror(errno));
+    job_debgf("failed to send the job request: %s", strerror(errno));
     goto end;
   }
 
   // get the job response
   if (__job_res_recv(job) < 0) {
-    job_debug(job, "failed to send the job response: %s", strerror(errno));
+    job_debgf("failed to send the job response: %s", strerror(errno));
     goto end;
   }
 
   // did we just get an ACK?
   if (job->res.type != RES_TYPE_JOB) {
-    job_debug(job, "did not receive a job response (type %d)", job->res.type);
+    job_debgf("did not receive a job response (type %d)", job->res.type);
     goto end;
   }
 
   // check if a new job is allowed
   if ((is_new = strcmp(job->res.job_id, job->id) != 0) && !allow_new) {
-    job_debug(job, "received a new job (id %s), however allow_new is false", job->res.job_id);
+    job_debgf("received a new job (id %s), however allow_new is false", job->res.job_id);
     goto end;
   }
 
@@ -87,7 +87,7 @@ bool job_recv(job_t *job, bool allow_new) {
   }
 
   if (job->res.packet_id != job->packet_id) {
-    job_debug(job, "invalid packet id (got: %d, expected: %d)", job->res.packet_id, job->packet_id);
+    job_debgf("invalid packet id (got: %d, expected: %d)", job->res.packet_id, job->packet_id);
     goto end;
   }
 
@@ -105,8 +105,6 @@ end:
 }
 
 bool job_send(job_t *job, bool require_ack) {
-  uint64_t data_size = 0;
-
   // reset the request if the last request sent belongs to different job
   if (strcmp(job->req.job_id, job->id) != 0)
     req_new(&job->req);
@@ -117,31 +115,31 @@ bool job_send(job_t *job, bool require_ack) {
 
   // send data in multiple requests if required
   for (job->data_pos = 0; job->data_pos < job->data_size;) {
-    data_size = REQ_DATA_SIZE_MAX;
+    job->req.data_size = REQ_DATA_SIZE_MAX;
 
-    if (job->data_size - job->data_pos <= data_size) {
-      data_size        = job->data_size - job->data_pos;
-      job->req.is_last = job->complete;
+    if (job->data_size - job->data_pos <= job->req.data_size) {
+      job->req.data_size = job->data_size - job->data_pos;
+      job->req.is_last   = job->complete;
     }
 
-    job->req.data      = job->data + job->data_pos;
-    job->req.data_size = data_size;
+    job->req.data = job->data + job->data_pos;
 
-    job_debug(job, "sending job result request (pid: %lu, is_last: %d)", job->req.packet_id, job->req.is_last);
+    job_debgf("sending job result request (pid: %lu, is_last: %d)", job->req.packet_id, job->req.is_last);
+    job_debgf("data position at %lu, size at %d (current size %d)", job->data_pos, job->data_size, job->req.data_size);
 
     // send the data
     if (__job_req_send(job) < 0) {
-      job_debug(job, "failed to send the job result request (pid: %lu)", job->req.packet_id);
+      job_debgf("failed to send the job result request (pid: %lu)", job->req.packet_id);
       return false;
     }
 
     // wait for the ack
     if (__job_res_recv(job) < 0 && require_ack) {
-      job_debug(job, "did not receive ACK for job result request (pid: %lu)", job->req.packet_id);
+      job_debgf("did not receive ACK for job result request (pid: %lu)", job->req.packet_id);
       return false;
     }
 
-    job->data_pos += data_size;
+    job->data_pos += job->req.data_size;
     job->req.packet_id++;
   }
 

@@ -42,7 +42,7 @@ void dns_label_add(dns_packet_t *p, char *label, uint64_t label_len) {
   if (NULL == q->qname)
     q->qname = malloc(label_len);
   else
-    q->qname = realloc(q->qname, q->_qname_len + label_len);
+    q->qname = realloc(q->qname, q->_qname_len + label_len + 1);
 
   q->qname[q->_qname_len++] = label_len;
   memcpy(q->qname + q->_qname_len, label, label_len);

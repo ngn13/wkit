@@ -19,6 +19,9 @@ typedef struct job {
   res_t     res;
 } job_t;
 
+#define job_debg(f)        debug("(job: %s) " f, job->id)
+#define job_debgf(f, a...) debug("(job: %s) " f, job->id, a)
+
 bool job_new(job_t *job, client_t *client); // init the job
 bool job_free(job_t *job);
 

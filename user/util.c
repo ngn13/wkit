@@ -21,7 +21,7 @@ void print_debug(const char *func, const char *msg, ...) {
   va_list args;
   va_start(args, msg);
 
-  printf("[%s] ", func);
+  printf("%s: ", func);
   vprintf(msg, args);
   printf("\n");
 
@@ -32,7 +32,7 @@ void print_debug_dump(const char *func, uint8_t *buf, uint16_t size) {
   if (!SHRK_DEBUG)
     return;
 
-  printf("--- start of dump from [%s] ---\n", func);
+  printf("--- start of dump from %s ---\n", func);
 
   for (uint16_t i = 0; i < size; i++) {
     if (!(i % 10))
@@ -44,7 +44,7 @@ void print_debug_dump(const char *func, uint8_t *buf, uint16_t size) {
       printf("\n");
   }
 
-  printf("---- end of dump from [%s] ----\n", func);
+  printf("---- end of dump from %s ----\n", func);
 }
 
 uint64_t copy(void *dst, void *src, uint64_t size) {

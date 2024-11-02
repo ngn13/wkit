@@ -21,9 +21,6 @@ struct cmd_handler_t {
   cmd_t cmd;
 };
 
-#define job_debg(f)        debug("[id: %s] " f, job->id)
-#define job_debgf(f, a...) debug("[id: %s] " f, job->id, a)
-
 const char *shells[] = {"fish", "zsh", "bash", "tcsh", "sh", NULL};
 
 bool __cmd_recv_all(job_t *job) {
@@ -183,6 +180,30 @@ end:
   job_send(job, false);
 }
 
+void __cmd_chdir(job_t *job) {
+  char *res = NULL;
+
+  // recv all the data for the job
+  if (!__cmd_recv_all(job)) {
+    job_debg("failed to receive the all the job data");
+    res = "invalid data";
+    goto end;
+  }
+
+  // chdir to the provided dir
+  if (chdir(job->data) != 0) {
+    res = strerror(errno);
+    goto end;
+  }
+
+  res = "success";
+end:
+  job_data_clear(job);
+  job_data_set(job, res, 0);
+  job->complete = true;
+  job_send(job, false);
+}
+
 bool __cmd_list_ent(job_t *job, struct dirent *ent) {
   // name, type, mode, uid, gid, size, modified time, created time
 #define ent_format(r, s)                                                                                               \
@@ -221,6 +242,8 @@ bool __cmd_list_ent(job_t *job, struct dirent *ent) {
     goto end;
   }
 
+  job_debgf("sending the entry for '%s'", ent->d_name);
+
   if (!job_send(job, false)) {
     job_debgf("failed to send the file data for %s", ent->d_name);
     goto end;
@@ -230,30 +253,6 @@ bool __cmd_list_ent(job_t *job, struct dirent *ent) {
 end:
   job_data_clear(job);
   return ret;
-}
-
-void __cmd_chdir(job_t *job) {
-  char *res = NULL;
-
-  // recv all the data for the job
-  if (!__cmd_recv_all(job)) {
-    job_debg("failed to receive the all the job data");
-    res = "invalid data";
-    goto end;
-  }
-
-  // chdir to the provided dir
-  if (chdir(job->data) != 0) {
-    res = strerror(errno);
-    goto end;
-  }
-
-  res = "success";
-end:
-  job_data_clear(job);
-  job_data_set(job, res, 0);
-  job->complete = true;
-  job_send(job, false);
 }
 
 void __cmd_list(job_t *job) {

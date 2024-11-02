@@ -3,6 +3,7 @@ package util
 import (
 	"encoding/hex"
 	"fmt"
+	"math/bits"
 	"math/rand"
 	"os"
 	"path"
@@ -10,6 +11,18 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/ngn13/shrk/server/config"
 )
+
+// https://red.ngn.tf/r/golang/comments/8micn7/review_bytes_to_human_readable_format/
+func HumanizeSize(s uint64) string {
+	if s < 1024 {
+		return fmt.Sprintf("%d bytes", s)
+	}
+
+	base := uint(bits.Len64(s) / 10)
+	val := float64(s) / float64(uint64(1<<(base*10)))
+
+	return fmt.Sprintf("%.1f %ciB", val, " KMGTPE"[base])
+}
 
 func ListNext(l []string, i uint64) string {
 	if i+1 >= uint64(len(l)) {

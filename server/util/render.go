@@ -1,9 +1,15 @@
 package util
 
 import (
+	"net/url"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/ngn13/shrk/server/config"
 )
+
+func Qescape(s string) string {
+	return url.QueryEscape(s)
+}
 
 func Render(c *fiber.Ctx, p string, m ...fiber.Map) error {
 	var (
@@ -21,6 +27,7 @@ func Render(c *fiber.Ctx, p string, m ...fiber.Map) error {
 
 	// stuff we need all the time
 	fmap["version"] = conf.Version
+	fmap["qescape"] = Qescape
 	fmap["path"] = conf.Path
 
 	return c.Render(p, fmap)

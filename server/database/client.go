@@ -2,7 +2,6 @@ package database
 
 import (
 	"fmt"
-	"math/bits"
 	"net"
 	"strconv"
 	"strings"
@@ -33,16 +32,8 @@ type Client struct {
 	Connected bool      `json:"connected"`
 }
 
-// https://red.ngn.tf/r/golang/comments/8micn7/review_bytes_to_human_readable_format/
 func (c *Client) HumanMem() string {
-	if c.Memory < 1024 {
-		return fmt.Sprintf("%d bytes", c.Memory)
-	}
-
-	base := uint(bits.Len64(c.Memory) / 10)
-	val := float64(c.Memory) / float64(uint64(1<<(base*10)))
-
-	return fmt.Sprintf("%.1f %ciB", val, " KMGTPE"[base])
+	return util.HumanizeSize(c.Memory)
 }
 
 func (c *Client) IsActive() bool {

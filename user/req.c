@@ -1,8 +1,11 @@
 #include "inc/req.h"
 #include "inc/dns.h"
 
-#include <errno.h>
+#include <stdlib.h>
 #include <string.h>
+
+#include <errno.h>
+#include <stdio.h>
 
 void req_new(req_t *req) {
   bzero(req, sizeof(req_t));
@@ -53,6 +56,7 @@ bool req_to_dns(req_t *req, dns_packet_t *p) {
   bzero(label, sizeof(label));
 
   // label 0 is the client_id
+  debug("adding the client ID label to the request (size: %d)", CLIENT_ID_SIZE);
   __req_label_add(p, req->client_id, CLIENT_ID_SIZE, false);
 
   switch (req->type) {
@@ -65,9 +69,12 @@ bool req_to_dns(req_t *req, dns_packet_t *p) {
     label_len += copy(label + label_len, req->job_id, JOB_ID_SIZE);
     label_len += copy(label + label_len, &req->packet_id, sizeof(req->packet_id));
     label[label_len++] = req->is_last ? 1 : 0;
+
+    debug("adding the job data label to the request (size: %d)", label_len);
     __req_label_add(p, label, label_len, true);
 
     // label 2 is the request data
+    debug("adding the result data label to the request (size: %d)", req->data_size);
     __req_label_add(p, req->data, req->data_size, true);
     break;
 
@@ -106,11 +113,12 @@ bool req_to_dns(req_t *req, dns_packet_t *p) {
   p->header.arcount = 0;
 
   // add the fake labels to the qname
+  debug("completing the labels for the request (header id: %d)", p->header.id);
   dns_label_complete(p);
   q->qtype  = 16; // TXT (https://en.wikipedia.org/wiki/List_of_DNS_record_types)
   q->qclass = 1;  // IN (https://www.rfc-editor.org/rfc/rfc2929#section-3.2)
 
-  debug("created new request (dns header id %d)", p->header.id);
+  debug("request is ready (header id: %d)", p->header.id);
   dns_debug_dump_qname(p);
 
   return true;
