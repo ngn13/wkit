@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {% include "parts/header.html" %}
+    <title>shrk / files</title>
+    <link href="{{path}}/static/files.css" rel="stylesheet">
+  </head>
+  <body>
+    {% include "parts/navbar.html" %}
+    <main>
+      <h1>{{dir}}</h1>
+
+      {% if error %}
+        <h3 class="error">directory list failed: {{error}}</h3>
+      {% endif %}
+
+      <div class="list">
+        {% for e in entries %}
+          {{e.Name}}
+        {% endfor %}
+      </div>
+    </main>
+  </body>
+</html>

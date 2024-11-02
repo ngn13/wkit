@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {% include "parts/header.html" %}
+    <title>shrk / error</title>
+    <link href="{{path}}/static/error.css" rel="stylesheet">
+  </head>
+  <body>
+    {% include "parts/navbar.html" %}
+    <main>
+      <h1>encountered an error</h1>
+      <h3>{{error}}</h3>
+      <a href="{{path}}/">back to the index</a>
+    </main>
+  </body>
+</html>
