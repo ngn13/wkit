@@ -3,17 +3,13 @@
   <head>
     {% include "parts/header.html" %}
     <title>shrk / {{client.ID}} / shell</title>
-    <link href="{{path}}/static/login.css" rel="stylesheet">
+    <link href="{{path}}/static/shell.css" rel="stylesheet">
   </head>
   <body>
     {% include "parts/navbar.html" %}
     <main>
       <h1>get a reverse shell</h1>
       <h3>enter the address and the port for your TCP listener</h3>
-
-      {% if error %}
-        <h3 class="error">job failed: {{error}}</h3>
-      {% endif %}
 
       <form action="shell" method="POST">
         <input type="text" name="addr" placeholder="address (IP/domain)" autofocus>

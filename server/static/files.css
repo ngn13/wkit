@@ -16,9 +16,9 @@
 }
 
 .list {
-  margin-top: 12px;
-  border-collapse: collapse;
   width: 100%;
+  margin-top: 10px;
+  border-collapse: collapse;
 }
 
 .list tr th, .list tr td {
@@ -38,10 +38,10 @@
   font-weight: 500;
 }
 
-.list tr td a::after {
+.dir-link::after {
   content: "";
 }
 
-.list tr td a::before {
+.dir-link::before {
   content: "";
 }

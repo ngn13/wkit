@@ -13,10 +13,18 @@
   --red-1: #fc160a;
   --red-2: #f99d98;
 
-  --green-1: #4afc0a;
+  --blue-1: #0a56fc;
+  --cyan-1: #0afcf8;
+  --yellow-1: #f8fc0a;
+}
+
+::selection {
+  background: rgba(100, 100, 100, 0.5);
+  text-decoration: underline;
 }
 
 * {
+  box-sizing:border-box;
   padding: 0;
   margin: 0;
 }
@@ -26,7 +34,6 @@ body {
   font-family: monospace;
   overflow-x: hidden;
   height: 100vh;
-  width: 100vw;
 }
 
 /*
@@ -117,7 +124,7 @@ a::after {
   content: "]"
 }
 
-input {
+input, textarea {
   border: solid 1px var(--bright-2);
   background: none;
   color: var(--bright-1);

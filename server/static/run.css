@@ -11,9 +11,15 @@ h3 {
   color: var(--bright-2);
 }
 
-.list {
+form {
   margin-top: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+}
+
+form textarea {
+  width: 400px;
+  height: 100px;
+}
+
+form button {
+  margin-top: 6px;
 }

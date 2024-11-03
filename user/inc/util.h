@@ -15,12 +15,14 @@ void print_debug_dump(const char *func, uint8_t *buf, uint16_t size);
 
 bool     resolve(struct addrinfo *info, struct sockaddr *saddr, char *addr, uint16_t port);
 uint64_t copy(void *dst, void *src, uint64_t size);
-bool     path_find(char *executable);
 char    *get_distro();
 void     jitter();
 
 void     randseed();
 uint64_t randint(uint64_t min, uint64_t max);
+
+bool  path_find(char *executable);
+char *shell_find();
 
 uint64_t encode(char *s, uint64_t l);
 uint64_t decode(char *s, uint64_t l);

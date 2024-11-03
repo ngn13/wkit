@@ -9,6 +9,8 @@
 
     {% if c.IsActive() %}
       <div class="link-list">
+        <a href="{{path}}/c/{{c.ID}}/run">run</a>
+        <p>.</p>
         <a href="{{path}}/c/{{c.ID}}/shell">shell</a>
         <p>.</p>
         <a href="{{path}}/c/{{c.ID}}/files">files</a>
@@ -17,6 +19,8 @@
       </div>
     {% else %}
       <div class="link-list inactive-links">
+        <a href="#">run</a>
+        <p>.</p>
         <a href="#">shell</a>
         <p>.</p>
         <a href="#">files</a>

@@ -11,9 +11,6 @@ h3 {
   color: var(--bright-2);
 }
 
-.list {
+form {
   margin-top: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
 }

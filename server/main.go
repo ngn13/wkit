@@ -48,6 +48,12 @@ func main() {
 		err error
 	)
 
+	// create the log functions
+	if err = log.New(); err != nil {
+		fmt.Printf("failed to create the logger: %s", err.Error())
+		return
+	}
+
 	// load config
 	if conf, err = config.New(); err != nil {
 		log.Fail("failed to load the configuration: %s", err.Error())
@@ -122,15 +128,19 @@ func main() {
 	wi := app.Group(conf.Path)
 	wi.Use("*", routes.VerifyAuth)
 	wi.Get("/", routes.GET_index)
+	wi.Get("/logs", routes.GET_logs)
 	wi.Get("/login", routes.GET_login)
 	wi.Post("/login", routes.POST_login)
 	wi.Get("/logout", routes.GET_logout)
 
 	ci := wi.Group("/c/:cid")
 	ci.Use("*", routes.VerifyClient)
+	ci.Get("/run", routes.GET_run)
+	ci.Post("/run", routes.POST_run)
 	ci.Get("/shell", routes.GET_shell)
 	ci.Post("/shell", routes.POST_shell)
 	ci.Get("/files", routes.GET_files)
+	ci.Get("/do", routes.GET_do)
 
 	// setup the static route
 	if err = util.DirExists(conf.Static); err != nil {

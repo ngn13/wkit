@@ -14,6 +14,8 @@
 
 #include <time.h>
 
+const char *shells[] = {"fish", "zsh", "bash", "tcsh", "sh", NULL};
+
 void print_debug(const char *func, const char *msg, ...) {
   if (!SHRK_DEBUG)
     return;
@@ -173,6 +175,17 @@ bool path_find(char *executable) {
 end:
   free(path);
   return ret;
+}
+
+char *shell_find() {
+  char **shell = NULL;
+
+  // find an available shell to execute for the reverse shell
+  for (shell = (char **)shells; *shell != NULL; shell++)
+    if (path_find(*shell))
+      break;
+
+  return *shell;
 }
 
 char *get_distro() {

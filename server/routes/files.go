@@ -18,14 +18,15 @@ import (
 )
 
 type entry struct {
-	Name  string
-	IsDir bool
-	Mode  int64
-	UID   int64
-	GID   int64
-	Size  uint64
-	MTime int64
-	CTime int64
+	Name   string
+	IsDir  bool
+	Mode   int64
+	UID    int64
+	GID    int64
+	Size   uint64
+	MTime  int64
+	CTime  int64
+	Hidden bool
 }
 
 var perm_nums []int64 = []int64{
@@ -78,7 +79,7 @@ func newEntry(s string) (*entry, error) {
 		return nil, fmt.Errorf("entry is empty")
 	}
 
-	if sects = strings.Split(s, "/"); len(sects) < 8 {
+	if sects = strings.Split(s, "/"); len(sects) < 9 {
 		return nil, fmt.Errorf("entry doesn't contain enough sections")
 	}
 
@@ -109,6 +110,7 @@ func newEntry(s string) (*entry, error) {
 		return nil, fmt.Errorf("failed to parse the entry creation time: %s", err.Error())
 	}
 
+	ent.Hidden = sects[8] == "1"
 	return &ent, nil
 }
 
@@ -135,11 +137,9 @@ func filesChdir(c *fiber.Ctx, client *database.Client, jobs *joblist.Type, dirp 
 	}
 
 	if res_str = res.String(); res_str != "success" {
-		return false, util.Render(c, "files", fiber.Map{
-			"dir":    dirp,
-			"client": client,
-			"error":  res_str,
-		})
+		return false, util.RenderErr(c,
+			fmt.Sprintf("file list job failed: %s", res_str), http.StatusGatewayTimeout,
+		)
 	}
 
 	return true, nil
