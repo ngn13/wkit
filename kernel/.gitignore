@@ -4,3 +4,4 @@
 *.mod
 *.mod.c
 *.o
+.*.cmd
