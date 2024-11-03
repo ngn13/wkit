@@ -1,1 +1,0 @@
-savedcmd_/home/ngn/Desktop/projects/wkit/kernel/shrk.mod := printf '%s\n'   main.o util.o systable.o hook.o hooks/getdents.o | awk '!x[$$0]++ { print("/home/ngn/Desktop/projects/wkit/kernel/"$$0) }' > /home/ngn/Desktop/projects/wkit/kernel/shrk.mod
