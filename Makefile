@@ -1,4 +1,4 @@
-SUBDIRS = user server
+SUBDIRS = user kernel server
 
 all:
 	for d in $(SUBDIRS); do \
