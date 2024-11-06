@@ -26,7 +26,8 @@ shrk-objs := main.o           \
              cmds.o           \
              hooks.o          \
              hooks/kill.o     \
-             hooks/getdents.o
+             hooks/getdents.o \
+             cmds/protect.o
 #        hooks/newfstatat.o \
 #        hooks/statx.o      \
 #        hooks/chdir.o      \
