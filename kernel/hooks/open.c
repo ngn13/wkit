@@ -1,7 +1,7 @@
 #include "../inc/hook.h"
 #include <linux/module.h>
 
-syscall_t *_open = NULL;
+syscall_t *_open   = NULL;
 syscall_t *_openat = NULL;
 
 asmlinkage int64_t h_open(const struct pt_regs *r) {

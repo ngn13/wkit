@@ -2,12 +2,12 @@
 #include <linux/module.h>
 #include <linux/seq_file.h>
 
-bool hooks_install(void);
-void hooks_uninstall(void);
+bool  hooks_install(void);
+void  hooks_uninstall(void);
 void *hooks_find(const char *symbol);
-#define hfind(o, n)                                                         \
-  if (NULL == o) {                                                             \
-    o = hooks_find(n);                                       \
+#define hfind(o, n)                                                                                                    \
+  if (NULL == o) {                                                                                                     \
+    o = hooks_find(n);                                                                                                 \
   }
 
 asmlinkage int64_t h_kill(const struct pt_regs *);

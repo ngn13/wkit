@@ -5,7 +5,7 @@
 #include <net/sock.h>
 
 void print_debug(const char *caller, char *msg, ...) {
-  char *fmt = NULL;
+  char   *fmt = NULL;
   va_list args;
 
   if (!SHRK_DEBUG)
@@ -30,12 +30,12 @@ void print_debug(const char *caller, char *msg, ...) {
  * core/sock.c, sock_i_ino()
 
 */
-uint64_t inode_from_sock(struct sock *sk){
-  if(NULL == sk || SEQ_START_TOKEN == sk)
+uint64_t inode_from_sock(struct sock *sk) {
+  if (NULL == sk || SEQ_START_TOKEN == sk)
     return 0;
 
-  switch(sk->sk_state) {
-  case TCP_TIME_WAIT: 
+  switch (sk->sk_state) {
+  case TCP_TIME_WAIT:
     return 0;
 
   case TCP_NEW_SYN_RECV:

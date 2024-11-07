@@ -28,7 +28,7 @@
 MODULE_LICENSE("GPL"); // required
 
 // prevent no previous prototype warning
-int init(void);
+int  init(void);
 void cleanup(void);
 
 // https://lore.kernel.org/lkml/20230118105215.B9DA960514@lion.mk-sys.cz/T/
