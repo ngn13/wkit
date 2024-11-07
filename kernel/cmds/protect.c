@@ -2,7 +2,9 @@
 #include "../inc/util.h"
 
 #include <linux/sched/signal.h>
+#include <linux/fdtable.h>
 #include <linux/slab.h>
+#include <linux/fs.h>
 
 struct protect_status {
   pid_t *list;
@@ -30,34 +32,88 @@ struct task_struct *__cmd_protect_find(pid_t p){
 
   for_each_process(cur) {
     if (cur->pid == p)
-      break;
+      return cur;
   }
 
-  return cur;
+  return NULL;
 }
 
-bool __cmd_protect_is_parent_protected(pid_t p){
-  struct task_struct *proc = NULL;
+bool __cmd_protect_is_parent_protected(pid_t pid){
+  struct task_struct *tp = NULL;
 
-  if((proc = __cmd_protect_find(p)) == NULL)
+  if((tp = __cmd_protect_find(pid)) == NULL)
     return false;
 
-  if(proc->real_parent->pid == 0)
+  if(tp->real_parent->pid == 0)
     return false;
 
-  return cmd_protect_is_protected(proc->real_parent->pid);
+  return is_process_protected(tp->real_parent->pid);
 }
 
-bool cmd_protect_is_protected(pid_t p){
+bool is_process_protected(pid_t pid){
   uint64_t i = 0;
 
   for(;i < pst.count; i++){
-    if(pst.list[i] == p)
+    if(pst.list[i] == pid)
       return true;
   }
 
-  if(__cmd_protect_is_parent_protected(p))
+  if(__cmd_protect_is_parent_protected(pid))
     return true;
+
+  return false;
+}
+
+bool __cmd_protect_is_inode_protected(struct task_struct *tp, uint64_t inode){
+  struct task_struct *child = NULL;
+  struct file *fp = NULL;
+  uint32_t i = 0;
+
+  if(NULL == tp->files || NULL == tp->files->fdt)
+    goto check_children;
+
+  /*
+
+   * heres the structures we go through to access to the file
+   * descriptors (which obv includes inodes)
+   
+   * struct task_struct (linux/sched.h)
+   * struct files_struct (linux/fdtable.h)
+   * struct fdtable (linux/fdtable.h)
+   * struct file (linux/fs.h)
+
+  */
+  for(;i < tp->files->fdt->max_fds; i++){
+    if(NULL == (fp = tp->files->fdt->fd[i]) || NULL == fp->f_inode)
+      continue;
+    
+    if(fp->f_inode->i_ino == inode)
+      return true;
+  }
+
+check_children:
+  // also check the child procceses
+  list_for_each_entry(child, &tp->children, sibling) {
+    if(__cmd_protect_is_inode_protected(child, inode))
+      return true;
+  }
+
+  return false;
+}
+
+bool is_inode_protected(uint64_t inode) {
+  struct task_struct *tp = NULL;
+  uint64_t i = 0;
+
+  for(;i < pst.count; i++){
+    if((tp = __cmd_protect_find(pst.list[i])) == NULL){
+      debgf("task struct not found for pid: %d", pst.list[i]);
+      continue;
+    }
+
+    if(__cmd_protect_is_inode_protected(tp, inode))
+      return true;
+  }
 
   return false;
 }

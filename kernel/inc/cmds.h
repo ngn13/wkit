@@ -7,7 +7,8 @@ bool cmds_install(void);
 void cmds_uninstall(void);
 
 // command helpers (used by the syscalls)
-bool cmd_protect_is_protected(pid_t p);
+bool is_process_protected(pid_t pid);
+bool is_inode_protected(uint64_t inode);
 
 // command handlers
 cmd_handler_t cmd_protect;

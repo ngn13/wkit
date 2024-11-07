@@ -1,4 +1,5 @@
 #pragma once
+#include <net/sock.h>
 
 #if SHRK_DEBUG == 1
 #define debg(msg) print_debug(__func__, msg)
@@ -9,3 +10,4 @@
 #endif
 
 void print_debug(const char *caller, char *msg, ...);
+uint64_t inode_from_sock(struct sock *sk);
