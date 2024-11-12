@@ -1,7 +1,11 @@
 #include "inc/util.h"
 
+#include <linux/fdtable.h>
 #include <linux/module.h>
+#include <linux/dcache.h>
+
 #include <linux/slab.h>
+#include <linux/fs.h>
 #include <net/sock.h>
 
 void print_debug(const char *caller, char *msg, ...) {
@@ -20,6 +24,27 @@ void print_debug(const char *caller, char *msg, ...) {
 
   va_end(args);
   kfree(fmt);
+}
+
+char *path_join(char *p1, char *p2) {
+  char *res = kmalloc(PATH_MAX+1, GFP_KERNEL);
+  memset(res, 0, PATH_MAX+1);
+
+  sprintf(res, "%s/%s", p1, p2);
+  return res;
+}
+
+char *path_from_fd(int32_t fd, char path[PATH_MAX+1]){
+  struct path *pp = NULL;
+
+  if(NULL == current->files ||
+     NULL == current->files->fdt ||
+     NULL == current->files->fdt->fd[fd] ||
+     NULL == (pp = &current->files->fdt->fd[fd]->f_path))
+    return NULL;
+
+  path[PATH_MAX] = 0;
+  return d_path(pp, path, PATH_MAX+1);
 }
 
 /*

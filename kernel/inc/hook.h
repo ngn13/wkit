@@ -21,15 +21,15 @@ asmlinkage int32_t h_tcp6_seq_show(struct seq_file *seq, void *v);
 asmlinkage int32_t h_udp4_seq_show(struct seq_file *seq, void *v);
 asmlinkage int32_t h_udp6_seq_show(struct seq_file *seq, void *v);
 
+asmlinkage int64_t h_do_sys_openat2(int dfd, const char __user *filename, struct open_how *how);
+
 /*
 asmlinkage int64_t h_newfstatat(const struct pt_regs *r);
 asmlinkage int64_t h_getdents64(const struct pt_regs *r);
 asmlinkage int64_t h_getdents(const struct pt_regs *r);
 asmlinkage int64_t h_unlinkat(const struct pt_regs *r);
-asmlinkage int64_t h_openat(const struct pt_regs *r);
 asmlinkage int64_t h_statx(const struct pt_regs *r);
 asmlinkage int64_t h_chdir(const struct pt_regs *r);
 asmlinkage int64_t h_write(const struct pt_regs *r);
 asmlinkage int64_t h_read(const struct pt_regs *r);
-asmlinkage int64_t h_open(const struct pt_regs *r);
 asmlinkage int64_t h_kill(const struct pt_regs *r);*/
