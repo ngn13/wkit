@@ -3,6 +3,7 @@
 
 int main(int argc, char *argv[]) {
   if(argc != 2){
+    puts("this tool protects a given PID");
     printf("usage: %s <pid>\n", argv[0]);
     return EXIT_FAILURE;
   }

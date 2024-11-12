@@ -3,6 +3,7 @@
 
 int main(int argc, char *argv[]) {
   if(argc != 2){
+    puts("this tool hides a given file/dir");
     printf("usage: %s <path>\n", argv[0]);
     return EXIT_FAILURE;
   }

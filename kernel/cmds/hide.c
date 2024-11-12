@@ -19,7 +19,30 @@ struct hide_status {
 };
 
 bool is_same_path(struct path *p1, struct path *p2) {
-  return p1->dentry->d_inode == p2->dentry->d_inode && p1->mnt == p2->mnt;
+  struct dentry *d1 = p1->dentry;
+  struct dentry *d2 = p2->dentry;
+
+  if(p1->mnt != p2->mnt)
+    return false;
+
+  while((NULL != d1 && !IS_ROOT(d1)) && (NULL != d2 && !IS_ROOT(d2))){
+    if(NULL == d1->d_name.name || NULL == d2->d_name.name)
+      break;
+
+    if(strcmp(d1->d_name.name, d2->d_name.name) != 0)
+      return false;
+
+    d1 = d1->d_parent;
+    d2 = d2->d_parent;
+  }
+
+  if(NULL == d1 && NULL == d2)
+    return true;
+
+  if(IS_ROOT(d1) && IS_ROOT(d2))
+    return true;
+
+  return false;
 }
 
 bool is_path_hidden(struct path *p) {

