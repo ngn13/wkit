@@ -11,9 +11,9 @@ struct cmd {
 };
 
 struct cmd cmds[] = {
-  {.code = 'P', .handler=cmd_protect},
-  {.code = 'U', .handler=cmd_unhide},
-  {.code = 'H', .handler=cmd_hide},
+    {.code = 'P', .handler = cmd_protect},
+    {.code = 'U', .handler = cmd_unhide },
+    {.code = 'H', .handler = cmd_hide   },
 };
 
 #define CMD_SIZE_MAX (PATH_MAX + 10)
