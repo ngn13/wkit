@@ -27,6 +27,7 @@ shrk-objs := main.o               \
              hooks.o              \
              cmds/hide.o          \
              cmds/protect.o       \
+             cmds/destruct.o      \
              hooks/link.o         \
              hooks/open.o         \
              hooks/kill.o         \
@@ -37,11 +38,6 @@ shrk-objs := main.o               \
              hooks/getdents.o     \
              hooks/tcp_seq_show.o \
              hooks/udp_seq_show.o
-#        hooks/statx.o      \
-#        hooks/chdir.o      \
-#        hooks/write.o      \
-#        hooks/read.o       \
-#        hooks/open.o       \
 
 all:
 	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules

