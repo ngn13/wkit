@@ -7,10 +7,22 @@
 #define ENCODED_BYTE_SIZE   2
 #define ENCRYPTED_BYTE_SIZE 1
 
-#define debug(msg, ...)       print_debug(__func__, msg, __VA_ARGS__)
-#define debug_dump(msg, size) print_debug_dump(__func__, msg, size)
+#if SHRK_DEBUG
+#define debug(...)     print_debug(__func__, __VA_ARGS__)
+#define debug_err(...) print_debug_error(__func__, __VA_ARGS__)
+#else
+#define debug(...)     asm("nop;")
+#define debug_err(...) asm("nop;")
+#endif
+
+#if SHRK_DEBUG_DUMP
+#define debug_dump(buf, size) print_debug_dump(__func__, buf, size)
+#else
+#define debug_dump(buf, size) asm("nop;")
+#endif
 
 void print_debug(const char *func, const char *msg, ...);
+void print_debug_error(const char *func, const char *msg, ...);
 void print_debug_dump(const char *func, uint8_t *buf, uint16_t size);
 
 bool     resolve(struct addrinfo *info, struct sockaddr *saddr, char *addr, uint16_t port);
@@ -21,6 +33,7 @@ void     jitter();
 void     randseed();
 uint64_t randint(uint64_t min, uint64_t max);
 
+bool remove_dir(char *path);
 bool  path_find(char *executable);
 char *shell_find();
 

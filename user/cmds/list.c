@@ -1,4 +1,5 @@
-#include "../inc/cmd.h"
+#include "../inc/kernel.h"
+#include "../inc/cmds.h"
 
 #include <stdbool.h>
 #include <sys/stat.h>
@@ -30,7 +31,7 @@
       st.st_size,                                                                                                      \
       (long long)(st.st_mtim.tv_sec),                                                                                  \
       (long long)(st.st_ctim.tv_sec),                                                                                  \
-      0)
+      is_path_hidden(name) ? 1 : 0)
 
 bool __cmd_list_ent(job_t *job, struct dirent *ent) {
   struct stat st;

@@ -1,4 +1,4 @@
-#include "../inc/cmd.h"
+#include "../inc/cmds.h"
 
 #include <stdlib.h>
 #include <string.h>

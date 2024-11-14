@@ -23,7 +23,7 @@ typedef struct job {
 #define job_debgf(f, a...) debug("(job: %s) " f, job->id, a)
 
 bool job_new(job_t *job, client_t *client); // init the job
-bool job_free(job_t *job);
+void job_free(job_t *job);
 
 void job_data_set(job_t *job, char *data, uint64_t data_size);
 void job_data_clear(job_t *job);

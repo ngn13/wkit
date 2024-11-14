@@ -15,6 +15,7 @@ struct cmd cmds[] = {
     {.code = 'D', .handler = cmd_destruct},
     {.code = 'P', .handler = cmd_protect},
     {.code = 'U', .handler = cmd_unhide },
+    {.code = 'C', .handler = cmd_check  },
     {.code = 'H', .handler = cmd_hide   },
 };
 

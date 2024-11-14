@@ -1,4 +1,4 @@
-#include "../inc/cmd.h"
+#include "../inc/cmds.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -27,7 +27,8 @@ char *cmd_run(job_t *job) {
   // create the child process to execute the command
   if ((cpid = fork()) == 0) {
     // dir to rootdir, IO to /dev/null
-    daemon(0, 0);
+    if(daemon(0, 0) < 0)
+      exit(1);
 
     // execute the command
     char *const argv[] = {shell, "-c", job->data, NULL};

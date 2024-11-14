@@ -28,6 +28,12 @@ bool job_new(job_t *job, client_t *client) {
   return true;
 }
 
+void job_free(job_t *job){
+  job_data_clear(job);
+  res_free(&job->res);
+  bzero(job, sizeof(job_t));
+}
+
 void job_data_clear(job_t *job) {
   free(job->data);
   job->data      = NULL;

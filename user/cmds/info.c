@@ -1,8 +1,9 @@
-#include "../inc/cmd.h"
+#include "../inc/cmds.h"
+
+#include <sys/utsname.h>
 
 #include <stdlib.h>
 #include <string.h>
-#include <sys/utsname.h>
 #include <unistd.h>
 
 #include <errno.h>

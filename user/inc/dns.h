@@ -56,7 +56,12 @@ typedef struct dns_packet {
 
 #define dns_question_count(p)   ((uint16_t)(sizeof(p->question) / sizeof(p->question[0])))
 #define dns_answer_count(p)     ((uint16_t)(sizeof(p->answers) / sizeof(p->answers[0])))
+
+#if SHRK_DEBUG_DUMP
 #define dns_debug_dump_qname(p) (debug_dump((void *)p->question[0].qname, p->question[0]._qname_len))
+#else
+#define dns_debug_dump_qname(p) asm("nop;")
+#endif
 
 void dns_free(dns_packet_t *p);
 
