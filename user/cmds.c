@@ -55,7 +55,7 @@ bool cmd_handle(job_t *job) {
   if (NULL == h)
     return false;
 
-  job_debgf("handling the command '%c' with %p", job->cmd, h->handler);
+  job_debug("handling the command '%c' with %p", job->cmd, h->handler);
 
   if ((res = h->handler(job)) != NULL) {
     job_data_clear(job);

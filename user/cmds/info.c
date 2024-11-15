@@ -36,7 +36,7 @@ char *cmd_info(job_t *job) {
 
   // get kernel
   if ((uname(&un)) != 0) {
-    job_debgf("uname failed: %s", strerror(errno));
+    job_debug("uname failed: %s", strerror(errno));
     return strerror(errno);
   }
 

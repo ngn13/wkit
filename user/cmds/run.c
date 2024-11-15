@@ -39,10 +39,10 @@ char *cmd_run(job_t *job) {
   }
 
   if (cpid < 0) {
-    job_debgf("failed to create fork for running the command: %s", strerror(errno));
+    job_debug("failed to create fork for running the command: %s", strerror(errno));
     return "fork failed";
   }
 
-  job_debgf("launched a child process (%d) for a %s command", cpid, shell);
+  job_debug("launched a child process (%d) for a %s command", cpid, shell);
   return "success";
 }

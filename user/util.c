@@ -32,20 +32,6 @@ void print_debug(const char *func, const char *msg, ...) {
   va_end(args);
 }
 
-void print_debug_error(const char *func, const char *msg, ...) {
-  if (!SHRK_DEBUG)
-    return;
-
-  va_list args;
-  va_start(args, msg);
-
-  printf("%s: ", func);
-  vprintf(msg, args);
-  printf(": %s\n", strerror(errno));
-
-  va_end(args);
-}
-
 void print_debug_dump(const char *func, uint8_t *buf, uint16_t size) {
   if (!SHRK_DEBUG)
     return;
@@ -261,9 +247,6 @@ bool remove_dir(char *path){
   struct stat st;
   bool ret = false;
 
-  bzero(&st, sizeof(st));
-  bzero(fp, PATH_MAX+1);
-
   if((path_dir = opendir(path)) == NULL)
     return false;
 
@@ -271,16 +254,24 @@ bool remove_dir(char *path){
     if(strcmp(ent->d_name, ".") == 0 || strcmp(ent->d_name, "..") == 0)
       continue;
     
+    bzero(fp, PATH_MAX+1);
     snprintf(fp, PATH_MAX+1, "%s/%s", path, ent->d_name);
 
     if(stat(fp, &st) != 0)
       goto end;
 
-    if(S_ISDIR(st.st_mode) && !remove_dir(fp))
-      goto end;
+    if(S_ISDIR(st.st_mode)){
+      if(!remove_dir(fp)){
+        debug_err("failed to remove dir: %s", fp);
+        goto end;
+      }
+      continue;
+    }
 
-    if(unlink(fp) != 0)
+    if(unlink(fp) != 0){
+      debug_err("failed to remove file: %s", fp);
       goto end;
+    }
   }
 
   ret = true;

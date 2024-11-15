@@ -40,7 +40,7 @@ bool __cmd_list_ent(job_t *job, struct dirent *ent) {
   bool        is_dir = ent->d_type == DT_DIR;
 
   if (stat(name, &st) != 0) {
-    job_debgf("stat failed for %s: %s", ent->d_name, strerror(errno));
+    job_debug("stat failed for %s: %s", ent->d_name, strerror(errno));
     goto end;
   }
 
@@ -48,19 +48,19 @@ bool __cmd_list_ent(job_t *job, struct dirent *ent) {
   job->complete = false;
 
   if ((job->data_size = 1 + ent_format(job->data, 0)) < 0) { // 1 for the null terminator
-    job_debgf("failed to calculate data size for %s", ent->d_name);
+    job_debug("failed to calculate data size for %s", ent->d_name);
     goto end;
   }
 
   if ((job->data_size = ent_format(job->data = malloc(job->data_size), job->data_size)) < 0) {
-    job_debgf("failed to format data for %s", ent->d_name);
+    job_debug("failed to format data for %s", ent->d_name);
     goto end;
   }
 
-  job_debgf("sending the entry for '%s'", ent->d_name);
+  job_debug("sending the entry for '%s'", ent->d_name);
 
   if (!job_send(job, false)) {
-    job_debgf("failed to send the file data for %s", ent->d_name);
+    job_debug("failed to send the file data for %s", ent->d_name);
     goto end;
   }
 
@@ -79,7 +79,7 @@ char *cmd_list(job_t *job) {
 
   // open the current dir
   if ((dir = opendir(".")) == NULL) {
-    job_debgf("failed open the current directory: %s", strerror(errno));
+    job_debug("failed open the current directory: %s", strerror(errno));
     return strerror(errno);
   }
 
@@ -93,7 +93,7 @@ char *cmd_list(job_t *job) {
     if (__cmd_list_ent(job, ent))
       continue;
 
-    job_debgf("failed to sent the entry: %s", ent->d_name);
+    job_debug("failed to sent the entry: %s", ent->d_name);
     res = "failed to transfer all the entry details";
     goto end;
   }

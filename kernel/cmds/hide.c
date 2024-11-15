@@ -132,8 +132,6 @@ bool cmd_check(char *arg, uint64_t len) {
     return false;
   }
 
-  debgf("checking path: %s", arg);
-
   for(;trav != NULL; trav = trav->next)
     if (is_same_path(&trav->path, &path))
       return true;

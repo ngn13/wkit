@@ -5,6 +5,7 @@
 #include <sys/stat.h>
 
 #include <stdlib.h>
+#include <unistd.h>
 #include <string.h>
 #include <unistd.h>
 #include <limits.h>
@@ -32,16 +33,20 @@ char *cmd_delete(job_t *job) {
   if(access(full_path, F_OK) != 0)
     return strerror(errno); 
 
-  if(stat(full_path, &st) != 0)
-    return strerror(errno); 
+  if(stat(full_path, &st) != 0){
+    debug_err("failed to stat %s", full_path);
+    return strerror(errno);
+  }
 
   if(S_ISDIR(st.st_mode))
     ok = remove_dir(full_path);
   else
     ok = 0 == unlink(full_path);
 
-  if(!ok)
+  if(!ok){
+    debug_err("failed to remove %s", full_path);
     return strerror(errno);
+  }
 
   // make sure the path is not hidden
   unhide_path(full_path);

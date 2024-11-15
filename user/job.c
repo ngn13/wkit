@@ -65,25 +65,25 @@ bool job_recv(job_t *job, bool allow_new) {
 
   // send a job request
   if (__job_req_send(job) < 0) {
-    job_debgf("failed to send the job request: %s", strerror(errno));
+    job_debug("failed to send the job request: %s", strerror(errno));
     goto end;
   }
 
   // get the job response
   if (__job_res_recv(job) < 0) {
-    job_debgf("failed to send the job response: %s", strerror(errno));
+    job_debug("failed to send the job response: %s", strerror(errno));
     goto end;
   }
 
   // did we just get an ACK?
   if (job->res.type != RES_TYPE_JOB) {
-    job_debgf("did not receive a job response (type %d)", job->res.type);
+    job_debug("did not receive a job response (type %d)", job->res.type);
     goto end;
   }
 
   // check if a new job is allowed
   if ((is_new = strcmp(job->res.job_id, job->id) != 0) && !allow_new) {
-    job_debgf("received a new job (id %s), however allow_new is false", job->res.job_id);
+    job_debug("received a new job (id %s), however allow_new is false", job->res.job_id);
     goto end;
   }
 
@@ -93,7 +93,7 @@ bool job_recv(job_t *job, bool allow_new) {
   }
 
   if (job->res.packet_id != job->packet_id) {
-    job_debgf("invalid packet id (got: %d, expected: %d)", job->res.packet_id, job->packet_id);
+    job_debug("invalid packet id (got: %d, expected: %d)", job->res.packet_id, job->packet_id);
     goto end;
   }
 
@@ -130,18 +130,18 @@ bool job_send(job_t *job, bool require_ack) {
 
     job->req.data = job->data + job->data_pos;
 
-    job_debgf("sending job result request (pid: %lu, is_last: %d)", job->req.packet_id, job->req.is_last);
-    job_debgf("data position at %lu, size at %d (current size %d)", job->data_pos, job->data_size, job->req.data_size);
+    job_debug("sending job result request (pid: %lu, is_last: %d)", job->req.packet_id, job->req.is_last);
+    job_debug("data position at %lu, size at %d (current size %d)", job->data_pos, job->data_size, job->req.data_size);
 
     // send the data
     if (__job_req_send(job) < 0) {
-      job_debgf("failed to send the job result request (pid: %lu)", job->req.packet_id);
+      job_debug("failed to send the job result request (pid: %lu)", job->req.packet_id);
       return false;
     }
 
     // wait for the ack
     if (__job_res_recv(job) < 0 && require_ack) {
-      job_debgf("did not receive ACK for job result request (pid: %lu)", job->req.packet_id);
+      job_debug("did not receive ACK for job result request (pid: %lu)", job->req.packet_id);
       return false;
     }
 

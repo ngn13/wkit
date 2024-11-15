@@ -68,10 +68,10 @@ char *cmd_shell(job_t *job) {
   }
 
   if (cpid < 0) {
-    job_debgf("failed to create fork for the reverse shell: %s", strerror(errno));
+    job_debug("failed to create fork for the reverse shell: %s", strerror(errno));
     return "fork failed";
   }
 
-  job_debgf("launched a child process (%d) for a %s reverse shell", cpid, *shell);
+  job_debug("launched a child process (%d) for a %s reverse shell", cpid, *shell);
   return "success";
 }

@@ -1,15 +1,19 @@
 #pragma once
-#include <netdb.h>
 #include <stdbool.h>
+
+#include <string.h>
 #include <stdint.h>
+
+#include <netdb.h>
+#include <errno.h>
 
 #define CLIENT_KEY_SIZE     12
 #define ENCODED_BYTE_SIZE   2
 #define ENCRYPTED_BYTE_SIZE 1
 
 #if SHRK_DEBUG
-#define debug(...)     print_debug(__func__, __VA_ARGS__)
-#define debug_err(...) print_debug_error(__func__, __VA_ARGS__)
+#define debug(f, ...)     print_debug(__func__, f, ##__VA_ARGS__)
+#define debug_err(f, ...) print_debug(__func__, f": %s", ##__VA_ARGS__, strerror(errno))
 #else
 #define debug(...)     asm("nop;")
 #define debug_err(...) asm("nop;")
@@ -22,7 +26,6 @@
 #endif
 
 void print_debug(const char *func, const char *msg, ...);
-void print_debug_error(const char *func, const char *msg, ...);
 void print_debug_dump(const char *func, uint8_t *buf, uint16_t size);
 
 bool     resolve(struct addrinfo *info, struct sockaddr *saddr, char *addr, uint16_t port);
