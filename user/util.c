@@ -1,14 +1,14 @@
 #include "inc/util.h"
 
+#include <stdbool.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
-#include <stdbool.h>
 
+#include <dirent.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <dirent.h>
 
 #include <errno.h>
 #include <netdb.h>
@@ -240,35 +240,35 @@ end:
   return distro;
 }
 
-bool remove_dir(char *path){
-  struct dirent *ent = NULL;
-  DIR *path_dir = NULL;
-  char fp[PATH_MAX+1];
-  struct stat st;
-  bool ret = false;
+bool remove_dir(char *path) {
+  struct dirent *ent      = NULL;
+  DIR           *path_dir = NULL;
+  char           fp[PATH_MAX + 1];
+  struct stat    st;
+  bool           ret = false;
 
-  if((path_dir = opendir(path)) == NULL)
+  if ((path_dir = opendir(path)) == NULL)
     return false;
 
-  while((ent = readdir(path_dir)) != NULL){
-    if(strcmp(ent->d_name, ".") == 0 || strcmp(ent->d_name, "..") == 0)
+  while ((ent = readdir(path_dir)) != NULL) {
+    if (strcmp(ent->d_name, ".") == 0 || strcmp(ent->d_name, "..") == 0)
       continue;
-    
-    bzero(fp, PATH_MAX+1);
-    snprintf(fp, PATH_MAX+1, "%s/%s", path, ent->d_name);
 
-    if(stat(fp, &st) != 0)
+    bzero(fp, PATH_MAX + 1);
+    snprintf(fp, PATH_MAX + 1, "%s/%s", path, ent->d_name);
+
+    if (stat(fp, &st) != 0)
       goto end;
 
-    if(S_ISDIR(st.st_mode)){
-      if(!remove_dir(fp)){
+    if (S_ISDIR(st.st_mode)) {
+      if (!remove_dir(fp)) {
         debug_err("failed to remove dir: %s", fp);
         goto end;
       }
       continue;
     }
 
-    if(unlink(fp) != 0){
+    if (unlink(fp) != 0) {
       debug_err("failed to remove file: %s", fp);
       goto end;
     }
@@ -277,7 +277,7 @@ bool remove_dir(char *path){
   ret = true;
 end:
   closedir(path_dir);
-  if(ret)
+  if (ret)
     return rmdir(path) == 0;
   return ret;
 }

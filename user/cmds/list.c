@@ -1,5 +1,5 @@
-#include "../inc/kernel.h"
 #include "../inc/cmds.h"
+#include "../inc/kernel.h"
 
 #include <stdbool.h>
 #include <sys/stat.h>

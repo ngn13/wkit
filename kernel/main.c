@@ -59,7 +59,7 @@ int init() {
    * so lets protect it
 
   */
-  if(!SHRK_DEBUG)
+  if (!SHRK_DEBUG)
     protect_pid(current->pid);
 
   return 0;

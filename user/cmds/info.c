@@ -59,7 +59,7 @@ char *cmd_info(job_t *job) {
 
   // send the result
   job_data_clear(job);
-  job_data_set(job, info, size-1);
+  job_data_set(job, info, size - 1);
 
   job->complete = true;
   job_send(job, false);

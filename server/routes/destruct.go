@@ -14,7 +14,7 @@ import (
 func GET_destruct(c *fiber.Ctx) error {
 	var (
 		client *database.Client
-    db     *database.Type
+		db     *database.Type
 		jobs   *joblist.Type
 		job    *joblist.Job
 		err    error
@@ -22,7 +22,7 @@ func GET_destruct(c *fiber.Ctx) error {
 
 	client = c.Locals("client").(*database.Client)
 	jobs = c.Locals("joblist").(*joblist.Type)
-  db = c.Locals("database").(*database.Type)
+	db = c.Locals("database").(*database.Type)
 
 	data := util.NewBuffer("-")
 	res := util.NewBuffer()
@@ -45,10 +45,10 @@ func GET_destruct(c *fiber.Ctx) error {
 		), http.StatusGatewayTimeout)
 	}
 
-  if err = db.ClientDel(client.ID); err != nil {
-    log.Fail("failed to remove client %s from database: %s", client.ID, err.Error())
+	if err = db.ClientDel(client.ID); err != nil {
+		log.Fail("failed to remove client %s from database: %s", client.ID, err.Error())
 		return util.RenderErr(c, "server error", http.StatusInternalServerError)
-  }
+	}
 
 	return util.Redirect(c, "/")
 }

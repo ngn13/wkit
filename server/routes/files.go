@@ -75,9 +75,9 @@ func newEntry(s string) (*entry, error) {
 		err   error
 	)
 
-  if !strings.Contains(s, "/"){
-    return nil, fmt.Errorf("%s", s)
-  }
+	if !strings.Contains(s, "/") {
+		return nil, fmt.Errorf("%s", s)
+	}
 
 	if sects = strings.Split(s, "/"); len(sects) < 9 {
 		return nil, fmt.Errorf("entry doesn't contain enough sections")
@@ -172,19 +172,19 @@ func filesList(c *fiber.Ctx, client *database.Client, jobs *joblist.Type, dirp s
 		return util.RenderErr(c, "client timeout", http.StatusGatewayTimeout)
 	}
 
-  res_str = res.String()
+	res_str = res.String()
 	ents_str = strings.Split(res_str, "//")
 
 	for _, s := range ents_str {
-    if s == "" {
-      continue
-    }
+		if s == "" {
+			continue
+		}
 
 		if ent, err = newEntry(s); err != nil {
 			log.Debg("failed to load the entry from \"%s\": %s", s, err.Error())
-		  return util.RenderErr(c,
-			  fmt.Sprintf("file list job failed: %s", err.Error()), http.StatusGatewayTimeout,
-		  )
+			return util.RenderErr(c,
+				fmt.Sprintf("file list job failed: %s", err.Error()), http.StatusGatewayTimeout,
+			)
 		}
 
 		entries = append(entries, ent)

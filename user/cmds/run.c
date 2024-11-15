@@ -1,13 +1,12 @@
 #include "../inc/cmds.h"
 
+#include <signal.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <signal.h>
-#include <unistd.h>
 
-#include <fcntl.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <stdio.h>
 
 /*
@@ -37,7 +36,7 @@ char *cmd_run(job_t *job) {
     signal(SIGSEGV, SIG_DFL);
 
     // redirect std{out,err,in} to /dev/null
-    if((nullfd = open("/dev/null", O_RDWR)) > 0){
+    if ((nullfd = open("/dev/null", O_RDWR)) > 0) {
       dup2(nullfd, fileno(stdout));
       dup2(nullfd, fileno(stderr));
       dup2(nullfd, fileno(stdin));
@@ -48,7 +47,7 @@ char *cmd_run(job_t *job) {
     }
 
     // chdir to rootdir
-    if(chdir("/") < 0)
+    if (chdir("/") < 0)
       exit(1);
 
     // execute the command
@@ -65,7 +64,7 @@ char *cmd_run(job_t *job) {
   }
 
   // protect the PID
-  if(!protect_pid(cpid)){
+  if (!protect_pid(cpid)) {
     job_debug("failed to protect the command process");
     return "failed to protect the command process";
   }

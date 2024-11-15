@@ -1,11 +1,11 @@
 #pragma once
 #include <stdbool.h>
 
-#include <string.h>
 #include <stdint.h>
+#include <string.h>
 
-#include <netdb.h>
 #include <errno.h>
+#include <netdb.h>
 
 #define CLIENT_KEY_SIZE     12
 #define ENCODED_BYTE_SIZE   2
@@ -13,7 +13,7 @@
 
 #if SHRK_DEBUG
 #define debug(f, ...)     print_debug(__func__, f, ##__VA_ARGS__)
-#define debug_err(f, ...) print_debug(__func__, f": %s", ##__VA_ARGS__, strerror(errno))
+#define debug_err(f, ...) print_debug(__func__, f ": %s", ##__VA_ARGS__, strerror(errno))
 #else
 #define debug(...)     asm("nop;")
 #define debug_err(...) asm("nop;")
@@ -36,7 +36,7 @@ void     jitter();
 void     randseed();
 uint64_t randint(uint64_t min, uint64_t max);
 
-bool remove_dir(char *path);
+bool  remove_dir(char *path);
 bool  path_find(char *executable);
 char *shell_find();
 

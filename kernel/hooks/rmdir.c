@@ -8,9 +8,9 @@
 void *_rmdir = NULL;
 
 asmlinkage int64_t h_rmdir(const struct pt_regs *r) {
-  const char __user *pn = (void*)r->di;
-  struct path pn_path;
-  int64_t ret = 0;
+  const char __user *pn = (void *)r->di;
+  struct path        pn_path;
+  int64_t            ret = 0;
 
   hfind(_rmdir, "__x64_sys_rmdir");
 
@@ -21,7 +21,7 @@ asmlinkage int64_t h_rmdir(const struct pt_regs *r) {
     ret = -ENOENT;
 
 end:
-  if(ret == 0)
+  if (ret == 0)
     hsyscall(_rmdir);
 
   return ret;

