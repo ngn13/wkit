@@ -65,13 +65,13 @@ bool job_recv(job_t *job, bool allow_new) {
 
   // send a job request
   if (__job_req_send(job) < 0) {
-    job_debug("failed to send the job request: %s", strerror(errno));
+    job_debug_err("failed to send the job request");
     goto end;
   }
 
   // get the job response
   if (__job_res_recv(job) < 0) {
-    job_debug("failed to send the job response: %s", strerror(errno));
+    job_debug_err("failed to send the job response");
     goto end;
   }
 

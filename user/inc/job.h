@@ -20,6 +20,7 @@ typedef struct job {
 } job_t;
 
 #define job_debug(f, ...) debug("(job: %s) " f, job->id, ##__VA_ARGS__)
+#define job_debug_err(f, ...) debug_err("(job: %s) " f, job->id, ##__VA_ARGS__)
 
 bool job_new(job_t *job, client_t *client); // init the job
 void job_free(job_t *job);

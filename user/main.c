@@ -39,7 +39,19 @@
 
 // clang-format on
 
+bool should_jitter = true;
 bool should_quit = false;
+job_t *job = NULL;
+
+void cleanup(){
+  // we are done, free/cleanup stuff
+  save_close();
+  job_free(job);
+  
+  // we can remove the kernel module if we are in debug mode
+  if(SHRK_DEBUG)
+    kernel_unload();
+}
 
 void handler(int sig){
   // interrupt can be ignored if we are not running in debug mode
@@ -47,7 +59,8 @@ void handler(int sig){
     return;
     
   debug("got a signal (%d), quitting", sig);
-  should_quit = true;
+  cleanup();
+  exit(1);
 }
 
 int main() {
@@ -56,7 +69,9 @@ int main() {
   signal(SIGSEGV, handler);
 
   client_t _client, *client = &_client;
-  job_t    _job, *job       = &_job;
+  job_t    _job;
+
+  job       = &_job;
 
   // load the kernel module
   if(!kernel_load())
@@ -81,16 +96,12 @@ int main() {
     cmd_handle(job);
 
   next:
-    jitter();
+    if(should_jitter && !should_quit)
+      jitter();
+    else
+      should_jitter = true;
   }
 
-  // we are done, free/cleanup stuff
-  save_close();
-  job_free(job);
-  
-  // we can remove the kernel module if we are in debug mode
-  if(SHRK_DEBUG)
-    kernel_unload();
-
+  cleanup();
   return EXIT_SUCCESS;
 }

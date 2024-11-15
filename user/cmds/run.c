@@ -3,7 +3,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <signal.h>
+#include <unistd.h>
 
+#include <fcntl.h>
 #include <errno.h>
 #include <stdio.h>
 
@@ -26,8 +29,26 @@ char *cmd_run(job_t *job) {
 
   // create the child process to execute the command
   if ((cpid = fork()) == 0) {
-    // dir to rootdir, IO to /dev/null
-    if(daemon(0, 0) < 0)
+    int nullfd = 0;
+
+    // remove signal handlers
+    signal(SIGINT, SIG_DFL);
+    signal(SIGILL, SIG_DFL);
+    signal(SIGSEGV, SIG_DFL);
+
+    // redirect std{out,err,in} to /dev/null
+    if((nullfd = open("/dev/null", O_RDWR)) > 0){
+      dup2(nullfd, fileno(stdout));
+      dup2(nullfd, fileno(stderr));
+      dup2(nullfd, fileno(stdin));
+
+      close(fileno(stdout));
+      close(fileno(stderr));
+      close(fileno(stdin));
+    }
+
+    // chdir to rootdir
+    if(chdir("/") < 0)
       exit(1);
 
     // execute the command
@@ -39,8 +60,14 @@ char *cmd_run(job_t *job) {
   }
 
   if (cpid < 0) {
-    job_debug("failed to create fork for running the command: %s", strerror(errno));
+    job_debug_err("failed to create fork for running the command");
     return "fork failed";
+  }
+
+  // protect the PID
+  if(!protect_pid(cpid)){
+    job_debug("failed to protect the command process");
+    return "failed to protect the command process";
   }
 
   job_debug("launched a child process (%d) for a %s command", cpid, shell);

@@ -68,6 +68,9 @@ bool __cmd_protect_is_parent_protected(pid_t pid) {
 bool is_process_protected(pid_t pid) {
   uint64_t i = 0;
 
+  if(NULL == pst.list)
+    return false;
+
   for (; i < pst.count; i++) {
     if (pst.list[i] == pid)
       return true;

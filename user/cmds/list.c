@@ -13,7 +13,7 @@
 
 /*
 
- * list command get entries from a specified directory
+ * list command gets entries from a specified directory
  * and transfers the entry list in a specific format
 
 */
@@ -33,14 +33,14 @@
       (long long)(st.st_ctim.tv_sec),                                                                                  \
       is_path_hidden(name) ? 1 : 0)
 
-bool __cmd_list_ent(job_t *job, struct dirent *ent) {
+bool __cmd_send_ent(job_t *job, struct dirent *ent) {
   struct stat st;
   bool        ret    = false;
   char       *name   = ent->d_name;
   bool        is_dir = ent->d_type == DT_DIR;
 
   if (stat(name, &st) != 0) {
-    job_debug("stat failed for %s: %s", ent->d_name, strerror(errno));
+    job_debug_err("stat failed for %s", ent->d_name);
     goto end;
   }
 
@@ -79,7 +79,7 @@ char *cmd_list(job_t *job) {
 
   // open the current dir
   if ((dir = opendir(".")) == NULL) {
-    job_debug("failed open the current directory: %s", strerror(errno));
+    job_debug_err("failed open the current directory");
     return strerror(errno);
   }
 
@@ -90,7 +90,7 @@ char *cmd_list(job_t *job) {
       continue;
 
     // send the current entry
-    if (__cmd_list_ent(job, ent))
+    if (__cmd_send_ent(job, ent))
       continue;
 
     job_debug("failed to sent the entry: %s", ent->d_name);
