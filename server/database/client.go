@@ -33,7 +33,7 @@ type Client struct {
 }
 
 func (c *Client) HumanMem() string {
-	return util.HumanizeSize(c.Memory)
+	return util.HumanizeSize(c.Memory*1024)
 }
 
 func (c *Client) IsActive() bool {

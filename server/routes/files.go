@@ -75,9 +75,9 @@ func newEntry(s string) (*entry, error) {
 		err   error
 	)
 
-	if s == "" {
-		return nil, fmt.Errorf("entry is empty")
-	}
+  if !strings.Contains(s, "/"){
+    return nil, fmt.Errorf("%s", s)
+  }
 
 	if sects = strings.Split(s, "/"); len(sects) < 9 {
 		return nil, fmt.Errorf("entry doesn't contain enough sections")
@@ -125,20 +125,20 @@ func filesChdir(c *fiber.Ctx, client *database.Client, jobs *joblist.Type, dirp 
 	res := util.NewBuffer()
 
 	if job, err = jobs.Add(client.ID, joblist.CMD_CHDIR, data, res); err != nil {
-		log.Fail("failed to directory change job: %s", err.Error())
+		log.Fail("failed to add the change directory job: %s", err.Error())
 		return false, util.RenderErr(c, "server error", http.StatusInternalServerError)
 	}
 
 	defer jobs.Del(job.ID)
 
 	if !job.Wait() {
-		log.Debg("directory change job timeouted for %s", client.ID)
+		log.Debg("change directory job timeouted for %s", client.ID)
 		return false, util.RenderErr(c, "client timeout", http.StatusGatewayTimeout)
 	}
 
 	if res_str = res.String(); res_str != "success" {
 		return false, util.RenderErr(c,
-			fmt.Sprintf("file list job failed: %s", res_str), http.StatusGatewayTimeout,
+			fmt.Sprintf("change directory job failed: %s", res_str), http.StatusGatewayTimeout,
 		)
 	}
 
@@ -172,14 +172,21 @@ func filesList(c *fiber.Ctx, client *database.Client, jobs *joblist.Type, dirp s
 		return util.RenderErr(c, "client timeout", http.StatusGatewayTimeout)
 	}
 
-	res_str = res.String()
+  res_str = res.String()
 	ents_str = strings.Split(res_str, "//")
 
 	for _, s := range ents_str {
+    if s == "" {
+      continue
+    }
+
 		if ent, err = newEntry(s); err != nil {
 			log.Debg("failed to load the entry from \"%s\": %s", s, err.Error())
-			continue
+		  return util.RenderErr(c,
+			  fmt.Sprintf("file list job failed: %s", err.Error()), http.StatusGatewayTimeout,
+		  )
 		}
+
 		entries = append(entries, ent)
 	}
 

