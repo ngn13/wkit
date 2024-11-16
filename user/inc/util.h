@@ -39,6 +39,7 @@ uint64_t randint(uint64_t min, uint64_t max);
 bool  remove_dir(char *path);
 bool  path_find(char *executable);
 char *shell_find();
+char *get_self(char *path);
 
 uint64_t encode(char *s, uint64_t l);
 uint64_t decode(char *s, uint64_t l);

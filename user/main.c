@@ -82,7 +82,7 @@ int main() {
   job_new(job, client);
 
   // setup the UDP client connection (also does address resolving)
-  if (client_setup(client, SHRK_SERVER_ADDR, SHRK_SERVER_PORT) < 0) {
+  if (client_setup(client, SHRK_SERVER_ADDR, SHRK_SERVER_PORT == 0 ? 53 : SHRK_SERVER_PORT) < 0) {
     debug_err("failed to create a connection");
     return EXIT_FAILURE;
   }

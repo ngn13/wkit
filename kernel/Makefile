@@ -40,11 +40,11 @@ shrk-objs := main.o               \
              hooks/udp_seq_show.o
 
 all:
-	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
+	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
 	rm -f *.order *.symvers *.mod *.mod.c *.o
 
 clean:
-	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
+	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
 
 format:
 	clang-format -i -style=file $(SRCS)
