@@ -31,13 +31,14 @@
       st.st_size,                                                                                                      \
       (long long)(st.st_mtim.tv_sec),                                                                                  \
       (long long)(st.st_ctim.tv_sec),                                                                                  \
-      is_path_hidden(name) ? 1 : 0)
+      is_hidden ? 1 : 0)
 
 bool __cmd_send_ent(job_t *job, struct dirent *ent) {
   struct stat st;
   bool        ret    = false;
   char       *name   = ent->d_name;
   bool        is_dir = ent->d_type == DT_DIR;
+  bool is_hidden = is_path_hidden(name);
 
   if (stat(name, &st) != 0) {
     job_debug_err("stat failed for %s", ent->d_name);

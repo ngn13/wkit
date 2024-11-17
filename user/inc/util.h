@@ -41,6 +41,8 @@ bool  path_find(char *executable);
 char *shell_find();
 char *get_self(char *path);
 
+void self_destruct();
+
 uint64_t encode(char *s, uint64_t l);
 uint64_t decode(char *s, uint64_t l);
 

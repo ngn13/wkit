@@ -2,13 +2,15 @@
 #include "inc/req.h"
 #include "inc/res.h"
 
-#include <errno.h>
 #include <time.h>
+#include <errno.h>
 
+#include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include <stdbool.h>
 #include <strings.h>
-#include <unistd.h>
 
 #define __job_req_send(j) (req_send(&j->req, j->client))
 #define __job_res_recv(j) (res_recv(&j->res, j->client))
@@ -58,8 +60,10 @@ void job_data_set(job_t *job, char *data, uint64_t data_size) {
   job->data_pos += data_size;
 }
 
-bool job_recv(job_t *job, bool allow_new) {
-  bool ret = false, is_new = false;
+uint8_t job_recv(job_t *job, bool allow_new) {
+  uint8_t ret = JOB_RECV_FAIL;
+  bool is_new = false;
+
   job->req.type = REQ_TYPE_JOB;
   res_new(&job->res);
 
@@ -75,9 +79,15 @@ bool job_recv(job_t *job, bool allow_new) {
     goto end;
   }
 
-  // did we just get an ACK?
-  if (job->res.type != RES_TYPE_JOB) {
-    job_debug("did not receive a job response (type %d)", job->res.type);
+  // there are no new jobs if we get an ACK
+  if (job->res.type == RES_TYPE_ACK) {
+    ret = JOB_RECV_NONE;
+    goto end;
+  }
+
+  // and let's check if we get an invalid response
+  else if(job->res.type == RES_TYPE_INVALID){
+    ret = JOB_RECV_INVALID;
     goto end;
   }
 
@@ -104,7 +114,10 @@ bool job_recv(job_t *job, bool allow_new) {
   memcpy(job->id, job->res.job_id, JOB_ID_SIZE);
   job_data_set(job, job->res.data, job->res.data_size);
 
-  ret = true;
+  if(is_new)
+    ret = JOB_RECV_NEW;
+  else
+    ret = JOB_RECV_OK;
 end:
   res_free(&job->res);
   return ret;

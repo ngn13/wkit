@@ -131,6 +131,8 @@ bool cmd_check(char *arg, uint64_t len) {
     debgf("failed to obtain the path from %s", arg);
     return false;
   }
+  
+  debgf("checking path: %s", arg);
 
   for (; trav != NULL; trav = trav->next)
     if (is_same_path(&trav->path, &path))

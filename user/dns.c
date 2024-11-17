@@ -82,7 +82,6 @@ int64_t dns_send(dns_packet_t *p, client_t *c) {
   dns_header_t    hcp;
 
   bzero(buf, sizeof(_buf));
-  ;
 
   hcp.id      = htons(p->header.id);
   hcp.flags   = htons(p->header.flags);
@@ -160,12 +159,12 @@ int64_t dns_recv(dns_packet_t *p, client_t *c) {
   p->header.nscount = ntohs(p->header.nscount);
   p->header.arcount = ntohs(p->header.arcount);
 
-  if (p->header.qdcount != dns_question_count(p)) {
+  if (p->header.qdcount > dns_question_count(p)) {
     debug("received invalid dns packet (header id %d), bad question count: %d", p->header.qdcount);
     goto fail;
   }
 
-  if (p->header.ancount != dns_answer_count(p)) {
+  if (p->header.ancount > dns_answer_count(p)) {
     debug("received invalid dns packet (header id %d), bad answer count: %d", p->header.ancount);
     goto fail;
   }

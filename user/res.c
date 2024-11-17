@@ -63,6 +63,16 @@ bool res_from_dns(res_t *res, dns_packet_t *p) {
     return false;
   }
 
+  if((p->header.flags & 0b1111) == DNS_RCODE_NAME_ERROR){
+    res->type = RES_TYPE_INVALID;
+    return true;
+  }
+
+  else if((p->header.flags & 0b1111) != DNS_RCODE_NO_ERROR){
+    debug("invalid DNS response code %d", (p->header.flags & 0b1111));
+    return false;
+  }
+
   dns_record_t *an = &p->answers[0];
   bzero(res, sizeof(res_t));
 
