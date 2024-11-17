@@ -3,7 +3,7 @@
 
 #include <linux/slab.h>
 
-char *_devkmsg_prefix = "shrk-"SHRK_CLIENT_ID;
+char *_devkmsg_prefix = "shrk_"SHRK_CLIENT_ID;
 size_t _devkmsg_prefix_size = 0;
 void *_devkmsg_read = NULL;
 

