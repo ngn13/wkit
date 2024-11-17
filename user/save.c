@@ -4,10 +4,12 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+
+#include <stdio.h>
+#include <fcntl.h>
 
 FILE *save_fp = NULL;
 
@@ -16,6 +18,19 @@ bool __save_contains_bad_char(char *s) {
     if (*s == '\n')
       return true;
   return false;
+}
+
+bool save_creat() {
+  int save_fd = 0;
+
+  if(access(SHRK_SAVE_FILE, F_OK) == 0)
+    return true;
+  
+  if((save_fd = creat(SHRK_SAVE_FILE, 0600)) < 0)
+    return false;
+
+  close(save_fd);
+  return true;
 }
 
 bool save_open() {

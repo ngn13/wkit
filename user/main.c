@@ -81,6 +81,12 @@ int main() {
   if(setresuid(gid, gid, gid) != 0 || setresgid(gid, gid, gid) != 0)
     debug_err("failed to preserve privileges");
 
+  // make sure the save file exists
+  if(!save_creat()){
+    debug_err("failed to create the save file");
+    return EXIT_FAILURE;
+  }
+
   // load the kernel module
   if (!kernel_load())
     return EXIT_FAILURE;
