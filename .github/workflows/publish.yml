@@ -25,4 +25,5 @@ jobs:
       - name: 'Build Inventory Image'
         run: |
           docker build . --tag ghcr.io/ngn13/shrk:latest --tag ghcr.io/ngn13/shrk:${GITHUB_REF##*/}
+          docker push ghcr.io/ngn13/shrk:${GITHUB_REF##*/}
           docker push ghcr.io/ngn13/shrk:latest
