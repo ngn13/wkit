@@ -40,10 +40,6 @@ char *cmd_run(job_t *job) {
       dup2(nullfd, fileno(stdout));
       dup2(nullfd, fileno(stderr));
       dup2(nullfd, fileno(stdin));
-
-      close(fileno(stdout));
-      close(fileno(stderr));
-      close(fileno(stdin));
     }
 
     // chdir to rootdir

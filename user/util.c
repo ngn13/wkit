@@ -324,7 +324,7 @@ void self_destruct() {
 
 skip_self:
   // next, lets remove the kernel module
-  if (unlink(SHRK_MODULE) != 0) {
+  if (unlink(SHRK_MODULE_PATH) != 0) {
     debug_err("failed to unlink the kernel module");
     return;
   }

