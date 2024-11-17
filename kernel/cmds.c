@@ -68,7 +68,7 @@ ssize_t __cmds_write(struct file *file, const char __user *buf, size_t buflen, l
     if (cmds[i].code != cmd[0])
       continue;
 
-    debgf("calling the handler for command %c", cmd[0]);
+    debg("calling the handler for command %c", cmd[0]);
 
     if (!cmds[i].handler(cmd + 1, buflen - 1))
       return -EFAULT;

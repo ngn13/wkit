@@ -1,5 +1,5 @@
 #include "../inc/cmds.h"
-#include "../inc/hook.h"
+#include "../inc/hooks.h"
 #include "../inc/util.h"
 
 void *_kill = NULL;

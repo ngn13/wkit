@@ -1,3 +1,5 @@
+#define _GNU_SOURCE
+
 #include "inc/client.h"
 #include "inc/cmds.h"
 #include "inc/job.h"
@@ -67,10 +69,17 @@ int main() {
   signal(SIGILL, handler);
   signal(SIGSEGV, handler);
 
+  uid_t uid = geteuid();
+  gid_t gid = getegid();
+
   client_t _client, *client = &_client;
   job_t    _job;
 
   job = &_job;
+  
+  // don't drop privileges when loaded with SUID
+  if(setresuid(gid, gid, gid) != 0 || setresgid(gid, gid, gid) != 0)
+    debug_err("failed to preserve privileges");
 
   // load the kernel module
   if (!kernel_load())

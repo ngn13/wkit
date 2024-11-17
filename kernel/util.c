@@ -17,7 +17,7 @@ void print_debug(const char *caller, char *msg, ...) {
     return;
 
   fmt = kmalloc(strlen(msg) + strlen(caller) + 12, GFP_KERNEL);
-  sprintf(fmt, "[shrk] %s: %s\n", caller, msg);
+  sprintf(fmt, "[shrk-"SHRK_CLIENT_ID"] %s: %s\n", caller, msg);
 
   va_start(args, msg);
 

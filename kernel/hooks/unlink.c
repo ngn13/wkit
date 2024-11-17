@@ -1,4 +1,4 @@
-#include "../inc/hook.h"
+#include "../inc/hooks.h"
 #include "../inc/util.h"
 
 #include <linux/module.h>

