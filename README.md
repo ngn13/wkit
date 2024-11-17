@@ -14,6 +14,9 @@ it comes with an userland agent, DNS based C2 server and a web interface
 > responsible for any material, moral or legal damage that may occur
 > due to incorrect or unethical use of the software.
 
+## screenshot
+![](assets/showcase.png)
+
 ## features
 - support for 5.15+ 64 bit kernels
 - easy setup with docker
@@ -26,7 +29,7 @@ it comes with an userland agent, DNS based C2 server and a web interface
 to install the server, you can use docker:
 ```bash
 docker run -v $PWD/data:/shrk/server/data            \
-           -p 1053:1053 -p 7070:7070                 \
+           -p 1053:1053/udp -p 7070:7070/tcp         \
            -e SHRK_PASSWORD=supersecret              \
            -e SHRK_PATH=/no_one_here                 \
            -e SHRK_HTTP_ADDR=0.0.0.0:7070            \
