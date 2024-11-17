@@ -97,11 +97,17 @@ func New() (*Type, error) {
 		err  error
 	)
 
+	// setup non modifiable values
+	conf.Version = VERSION
+	conf.SourcePath = ""
+
+	// setup modifiable values to default
 	conf.HTTP_Addr = "127.0.0.1:7070"
 	conf.C2_Addr = "127.0.0.1:1053"
 	conf.HTTP_URL = "http://127.0.0.1:7070"
 	conf.C2_URL = "dns://127.0.0.1:1053"
 	conf.Script = "../scripts/install.sh"
+	conf.Source = fmt.Sprintf("../release/shrk-client-%s.tar.gz", conf.Version)
 	conf.Static = "./static"
 	conf.Views = "./views"
 	conf.Database = "./data"
@@ -112,11 +118,6 @@ func New() (*Type, error) {
 	if err = conf.Load(); err != nil {
 		return nil, err
 	}
-
-	// setup non modifiable values
-	conf.Version = VERSION
-	conf.Source = fmt.Sprintf("../release/shrk-client-%s.tar.gz", conf.Version)
-	conf.SourcePath = ""
 
 	if conf.HTTP_URL_p, err = url.Parse(conf.HTTP_URL); err != nil {
 		return nil, fmt.Errorf("failed to parse the HTTP URL: %s", err.Error())
@@ -132,6 +133,14 @@ func New() (*Type, error) {
 
 	if conf.C2_URL_p.Scheme != "dns" {
 		return nil, fmt.Errorf("C2 URL only supports DNS schemes")
+	}
+
+	if _, err = os.Stat(conf.Script); err != nil {
+		return nil, fmt.Errorf("installation script (%s) is not accessible: %s", conf.Script, err.Error())
+	}
+
+	if _, err = os.Stat(conf.Source); err != nil {
+		return nil, fmt.Errorf("source archive (%s) is not accessible: %s", conf.Source, err.Error())
 	}
 
 	return &conf, nil
