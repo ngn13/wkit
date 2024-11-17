@@ -2,12 +2,12 @@
 #include "inc/req.h"
 #include "inc/res.h"
 
-#include <time.h>
 #include <errno.h>
+#include <time.h>
 
-#include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include <stdbool.h>
 #include <strings.h>
@@ -61,8 +61,8 @@ void job_data_set(job_t *job, char *data, uint64_t data_size) {
 }
 
 uint8_t job_recv(job_t *job, bool allow_new) {
-  uint8_t ret = JOB_RECV_FAIL;
-  bool is_new = false;
+  uint8_t ret    = JOB_RECV_FAIL;
+  bool    is_new = false;
 
   job->req.type = REQ_TYPE_JOB;
   res_new(&job->res);
@@ -86,7 +86,7 @@ uint8_t job_recv(job_t *job, bool allow_new) {
   }
 
   // and let's check if we get an invalid response
-  else if(job->res.type == RES_TYPE_INVALID){
+  else if (job->res.type == RES_TYPE_INVALID) {
     ret = JOB_RECV_INVALID;
     goto end;
   }
@@ -114,7 +114,7 @@ uint8_t job_recv(job_t *job, bool allow_new) {
   memcpy(job->id, job->res.job_id, JOB_ID_SIZE);
   job_data_set(job, job->res.data, job->res.data_size);
 
-  if(is_new)
+  if (is_new)
     ret = JOB_RECV_NEW;
   else
     ret = JOB_RECV_OK;

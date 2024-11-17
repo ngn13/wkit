@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     {% include "parts/header.html" %}
-    <title>shrk / files</title>
+    <title>shrk / {{client.ID}} / files</title>
     <link href="{{path}}/static/files.css" rel="stylesheet">
   </head>
   <body>
@@ -14,6 +14,7 @@
 
       <table class="list">
         <tr>
+          <th>Actions</th>
           <th>Name</th>
           <th>Size</th>
           <th>Permissions</th>
@@ -21,10 +22,17 @@
           <th>GID</th>
           <th>Modification Date</th>
           <th>Creation Date</th>
-          <th>Actions</th>
         </tr>
         {% for e in entries %}
           <tr>
+            <td>
+              {% if e.Hidden %}
+                <a href="do?o=unhide&p={{qescape(join(dir, e.Name))}}">unhide</a>
+              {% else %}
+                <a href="do?o=hide&p={{qescape(join(dir, e.Name))}}">hide</a>
+              {% endif %}
+              <a href="do?o=delete&p={{qescape(join(dir, e.Name))}}">delete</a>
+            </td>
             {% if e.IsDir %}
               <td><a class="dir-link" href="?p={{qescape(join(dir, e.Name))}}">{{e.Name}}</a></td>
             {% else %}
@@ -36,14 +44,6 @@
             <td>{{e.GID}}</td>
             <td>{{e.ModificationTime()}}</td>
             <td>{{e.CreationTime()}}</td>
-            <td>
-              {% if e.Hidden %}
-                <a href="do?o=unhide&p={{qescape(join(dir, e.Name))}}">unhide</a>
-              {% else %}
-                <a href="do?o=hide&p={{qescape(join(dir, e.Name))}}">hide</a>
-              {% endif %}
-              <a href="do?o=delete&p={{qescape(join(dir, e.Name))}}">delete</a>
-            </td>
           </tr>
         {% endfor %}
       </table>

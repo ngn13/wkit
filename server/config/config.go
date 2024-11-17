@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"net/url"
 	"os"
 	"reflect"
 	"strconv"
@@ -10,12 +11,20 @@ import (
 const VERSION = "1.0"
 
 type Type struct {
-	Version   string // not modifyable
+	// not modifiable
+	Version    string
+	SourcePath string
+	HTTP_URL_p *url.URL
+	C2_URL_p   *url.URL
+
+	// modifiable (with env)
 	HTTP_Addr string `env:"HTTP_ADDR"`
 	C2_Addr   string `env:"C2_ADDR"`
 	HTTP_URL  string `env:"HTTP_URL"`
 	C2_URL    string `env:"C2_URL"`
 	Static    string `env:"STATIC"`
+	Source    string `env:"SOURCE"`
+	Script    string `env:"SCRIPT"`
 	Views     string `env:"VIEWS"`
 	Path      string `env:"PATH"`
 	Database  string `env:"DB"`
@@ -88,21 +97,41 @@ func New() (*Type, error) {
 		err  error
 	)
 
-	conf.Version = VERSION
 	conf.HTTP_Addr = "127.0.0.1:7070"
 	conf.C2_Addr = "127.0.0.1:1053"
 	conf.HTTP_URL = "http://127.0.0.1:7070"
 	conf.C2_URL = "dns://127.0.0.1:1053"
+	conf.Script = "../scripts/install.sh"
 	conf.Static = "./static"
 	conf.Views = "./views"
 	conf.Database = "./data"
 	conf.Path = ""
 	conf.Password = ""
-
 	conf.Debug = false
 
 	if err = conf.Load(); err != nil {
 		return nil, err
+	}
+
+	// setup non modifiable values
+	conf.Version = VERSION
+	conf.Source = fmt.Sprintf("../release/shrk-client-%s.tar.gz", conf.Version)
+	conf.SourcePath = ""
+
+	if conf.HTTP_URL_p, err = url.Parse(conf.HTTP_URL); err != nil {
+		return nil, fmt.Errorf("failed to parse the HTTP URL: %s", err.Error())
+	}
+
+	if conf.C2_URL_p, err = url.Parse(conf.C2_URL); err != nil {
+		return nil, fmt.Errorf("failed to parse the C2 URL: %s", err.Error())
+	}
+
+	if conf.HTTP_URL_p.Scheme != "http" && conf.HTTP_URL_p.Scheme != "https" {
+		return nil, fmt.Errorf("HTTP URL only supports HTTP or HTTPS schemes")
+	}
+
+	if conf.C2_URL_p.Scheme != "dns" {
+		return nil, fmt.Errorf("C2 URL only supports DNS schemes")
 	}
 
 	return &conf, nil

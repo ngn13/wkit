@@ -1,6 +1,7 @@
 package util
 
 import (
+	"crypto/sha1"
 	"encoding/hex"
 	"fmt"
 	"math/bits"
@@ -91,4 +92,9 @@ func EncodeHex(dec []byte) (string, uint64) {
 	res := make([]byte, size)
 	hex.Encode(res, dec)
 	return string(res), uint64(size)
+}
+
+func SHA1(s string) string {
+	sum := sha1.Sum([]byte(s))
+	return hex.EncodeToString(sum[:])
 }

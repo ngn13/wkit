@@ -1,6 +1,7 @@
 package util
 
 import (
+	"net/http"
 	"net/url"
 
 	"github.com/gofiber/fiber/v2"
@@ -38,4 +39,9 @@ func RenderErr(c *fiber.Ctx, err string, code int) error {
 	return Render(c, "error", fiber.Map{
 		"error": err,
 	})
+}
+
+func RenderNginxNotFound(c *fiber.Ctx) error {
+	c.Status(http.StatusNotFound)
+	return Render(c, "notfound")
 }

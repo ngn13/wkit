@@ -41,7 +41,7 @@ func New(conf *config.Type) (*Type, error) {
 	data.Clients = []Client{}
 
 	if conf.Debug {
-		data.ClientAdd()
+		data.ClientAdd(CLIENT_DEBUG_ID, CLIENT_DEBUG_KEY)
 	}
 
 	return &data, data.Load()
@@ -111,12 +111,12 @@ func (d *Type) Save() error {
 	return nil
 }
 
-func (d *Type) ClientAdd() (*Client, error) {
-	id := CLIENT_DEBUG_ID
-	key := CLIENT_DEBUG_KEY
-
-	if !d.Conf.Debug {
+func (d *Type) ClientAdd(id string, key string) (*Client, error) {
+	if id == "" {
 		id = util.RandomStr(CLIENT_ID_SIZE)
+	}
+
+	if key == "" {
 		key = util.RandomStr(CLIENT_KEY_SIZE)
 	}
 
@@ -125,16 +125,23 @@ func (d *Type) ClientAdd() (*Client, error) {
 	}
 
 	var client Client = Client{
-		ID:        id,
-		Key:       key,
-		Connected: false,
-		HasInfo:   false,
-		FirstCon:  time.Time{},
-		LastCon:   time.Time{},
+		ID:         id,
+		Key:        key,
+		OS:         "",
+		IPs:        []string{},
+		Memory:     0,
+		Cores:      0,
+		FirstCon:   time.Time{},
+		LastCon:    time.Time{},
+		HasInfo:    false,
+		Connected:  false,
+		SourceURL:  "",
+		ShouldBurn: false,
+		IsBurned:   false,
 	}
 
 	d.Clients = append(d.Clients, client)
-	return &client, d.Save()
+	return &d.Clients[len(d.Clients)-1], d.Save()
 }
 
 func (d *Type) ClientGet(id string) (*Client, int) {

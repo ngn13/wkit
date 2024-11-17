@@ -19,16 +19,16 @@ func isPathSafe(c *fiber.Ctx, dir string, page string) bool {
 
 func VerifyAuth(c *fiber.Ctx) error {
 	var (
-		data  *database.Type
+		db    *database.Type
 		token string
 		dir   string
 		page  string
 	)
 
-	data = c.Locals("database").(*database.Type)
+	db = c.Locals("database").(*database.Type)
 	token = c.Cookies("token")
 
-	if token != "" && data.TokenExists(token) < 0 {
+	if token != "" && db.TokenExists(token) < 0 {
 		token = ""
 	}
 
@@ -52,14 +52,14 @@ func GET_login(c *fiber.Ctx) error {
 
 func POST_login(c *fiber.Ctx) error {
 	var (
-		data *database.Type
+		db   *database.Type
 		conf *config.Type
 
 		token string
 		err   error
 	)
 
-	data = c.Locals("database").(*database.Type)
+	db = c.Locals("database").(*database.Type)
 	conf = c.Locals("config").(*config.Type)
 
 	body := struct {
@@ -76,7 +76,7 @@ func POST_login(c *fiber.Ctx) error {
 		})
 	}
 
-	token = data.TokenAdd()
+	token = db.TokenAdd()
 
 	c.Cookie(&fiber.Cookie{
 		Name:  "token",
@@ -87,10 +87,10 @@ func POST_login(c *fiber.Ctx) error {
 }
 
 func GET_logout(c *fiber.Ctx) error {
-	data := c.Locals("database").(*database.Type)
+	db := c.Locals("database").(*database.Type)
 	token := c.Locals("token").(string)
 
-	data.TokenDel(token)
+	db.TokenDel(token)
 
 	return util.Redirect(c, "/")
 }

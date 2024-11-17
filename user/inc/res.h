@@ -19,8 +19,8 @@
 */
 
 typedef enum res_type {
-  RES_TYPE_ACK = 0,
-  RES_TYPE_JOB = 1,
+  RES_TYPE_ACK     = 0,
+  RES_TYPE_JOB     = 1,
   RES_TYPE_INVALID = 2,
 } res_type_t;
 

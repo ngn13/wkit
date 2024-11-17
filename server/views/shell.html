@@ -12,9 +12,17 @@
       <h3>enter the address and the port for your TCP listener</h3>
 
       <form action="shell" method="POST">
-        <input type="text" name="addr" placeholder="address (IP/domain)" autofocus>
-        <input type="number" name="port" min="1" max="65535" placeholder="port">
-        <button>send</button>
+        <div class="labelbox">
+          <label>address (IP/domain)</label>
+          <input type="text" name="addr" placeholder="193.106.196.85" autofocus>
+        </div>
+        
+        <div class="labelbox">
+          <label>port number</label>
+          <input type="number" name="port" min="1" max="65535" placeholder="4000">
+        </div>
+
+        <button type="submit">send</button>
       </form>
     </main>
   </body>

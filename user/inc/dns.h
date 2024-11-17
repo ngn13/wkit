@@ -12,12 +12,12 @@
 */
 
 typedef enum {
-  DNS_RCODE_NO_ERROR = 0,
-  DNS_RCODE_FORMAT_ERROR = 1,
-  DNS_RCODE_SERVER_FAIL = 2,
-  DNS_RCODE_NAME_ERROR = 3,
+  DNS_RCODE_NO_ERROR        = 0,
+  DNS_RCODE_FORMAT_ERROR    = 1,
+  DNS_RCODE_SERVER_FAIL     = 2,
+  DNS_RCODE_NAME_ERROR      = 3,
   DNS_RCODE_NOT_IMPLEMENTED = 4,
-  DNS_RCODE_REFUSED = 5,
+  DNS_RCODE_REFUSED         = 5,
 } dns_rcode_t;
 
 // 2.3.4. Size limits

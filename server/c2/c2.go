@@ -84,6 +84,30 @@ func (c2 *Type) send(con *net.UDPAddr, packet *DNS_Packet, client *database.Clie
 	return nil
 }
 
+func (c2 *Type) sendNameError(con *net.UDPAddr, packet *DNS_Packet, buf *bytes.Buffer) error {
+	var err error
+
+	packet.Header.Flags = 0
+	packet.Header.Flags |= 0b10000001 << 8
+	packet.Header.Flags |= 0b10000011
+
+	packet.Header.NSCount = 0
+	packet.Header.ANCount = 0
+	packet.Header.ARCount = 0
+
+	buf.Reset()
+
+	if err = packet.Write(buf); err != nil {
+		return fmt.Errorf("failed write DNS packet to buffer: %s", err.Error())
+	}
+
+	if _, err = c2.Conn.WriteToUDP(buf.Bytes(), con); err != nil {
+		return fmt.Errorf("failed to send the DNS packet: %s", err.Error())
+	}
+
+	return nil
+}
+
 func (c2 *Type) HandleClient(con *net.UDPAddr, buf *bytes.Buffer) {
 	var (
 		packet *DNS_Packet
@@ -98,11 +122,17 @@ func (c2 *Type) HandleClient(con *net.UDPAddr, buf *bytes.Buffer) {
 
 	if err = packet.Read(buf); err != nil {
 		c2.conDebg(con, "invalid DNS request: %s", err.Error())
+		if err = c2.sendNameError(con, packet, buf); err != nil {
+			c2.conDebg(con, "failed to send the name error response: %s", err.Error())
+		}
 		return
 	}
 
 	if req, client, job, err = c2.ToRequest(packet); err != nil {
 		c2.conDebg(con, "invalid C2 request: %s", err.Error())
+		if err = c2.sendNameError(con, packet, buf); err != nil {
+			c2.conDebg(con, "failed to send the name error response: %s", err.Error())
+		}
 		return
 	}
 
@@ -113,6 +143,7 @@ func (c2 *Type) HandleClient(con *net.UDPAddr, buf *bytes.Buffer) {
 
 		if err = c2.send(con, packet, client, job, buf); err != nil {
 			c2.clientDebg(client, "failed to send the job: %s", err.Error())
+			return
 		}
 
 		if nil != job {

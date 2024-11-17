@@ -11,11 +11,11 @@ func isActive(c *database.Client) bool {
 }
 
 func GET_index(c *fiber.Ctx) error {
-	data := c.Locals("database").(*database.Type)
+	db := c.Locals("database").(*database.Type)
 	clients := []*database.Client{}
 
-	for i := range data.Clients {
-		clients = append(clients, &data.Clients[i])
+	for i := range db.Clients {
+		clients = append(clients, &db.Clients[i])
 	}
 
 	return util.Render(c, "index", fiber.Map{

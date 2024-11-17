@@ -12,9 +12,14 @@ h3 {
 }
 
 .error {
+  margin-top: 5px;
   color: var(--red-2);
 }
 
 form {
   margin-top: 10px;
+  display: flex;
+  flex-direction: row;
+  align-items: end;
+  gap: 7px;
 }

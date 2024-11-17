@@ -177,20 +177,24 @@ func (p *DNS_Packet) Write(buf *bytes.Buffer) error {
 		return err
 	}
 
-	if p.Header.QDCount != 1 && p.Header.ANCount != 1 {
+	if p.Header.QDCount > 1 {
 		return fmt.Errorf("bad question count")
 	}
 
-	if err = p.Question.Write(buf); err != nil {
-		return err
-	}
-
-	if p.Header.ANCount != 1 {
+	if p.Header.ANCount > 1 {
 		return fmt.Errorf("bad answer count")
 	}
 
-	if err = p.Answers.Write(buf); err != nil {
-		return err
+	if p.Header.QDCount == 1 {
+		if err = p.Question.Write(buf); err != nil {
+			return err
+		}
+	}
+
+	if p.Header.ANCount == 1 {
+		if err = p.Answers.Write(buf); err != nil {
+			return err
+		}
 	}
 
 	return nil

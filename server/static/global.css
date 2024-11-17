@@ -124,7 +124,7 @@ a::after {
   content: "]"
 }
 
-input, textarea {
+input, textarea, select {
   border: solid 1px var(--bright-2);
   background: none;
   color: var(--bright-1);
@@ -145,4 +145,33 @@ button {
 
 main {
   padding: 15px;
+}
+
+/*
+ * other custom element styles
+*/
+.labelbox {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: start;
+  gap: 3px;
+}
+
+.checkbox {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  border: solid 1px var(--bright-2);
+  padding: 4px;
+  gap: 3px;
+}
+
+.labelbox label, .checkbox label{
+  font-weight: 900;
+  color: var(--bright-2);
+}
+
+.labelbox > * {
+  width: 100%;
 }

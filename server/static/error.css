@@ -5,9 +5,8 @@ h1 {
 }
 
 h3 {
-  margin-top: 4px;
+  margin: 4px 0 10px 0;
   font-size: 14px;
   font-weight: 600;
   color: var(--bright-2);
-  margin-bottom: 5px;
 }

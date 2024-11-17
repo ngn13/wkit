@@ -130,6 +130,7 @@ func GET_ps(c *fiber.Ctx) error {
 	})
 
 	return util.Render(c, "ps", fiber.Map{
+		"client":    client,
 		"processes": processes,
 	})
 }
