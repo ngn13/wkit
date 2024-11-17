@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {% include "parts/header.html" %}
+    <title>shrk / index</title>
+    <link href="{{path}}/static/index.css" rel="stylesheet">
+    <link href="{{path}}/static/client.css" rel="stylesheet">
+  </head>
+  <body>
+    {% include "parts/navbar.html" %}
+    <main>
+      {% if clients|length == 0 %}
+        <h1>no clients</h1>
+      {% elif clients|length == 1 %}
+        <h1>listing 1 client</h1>
+      {% else %}
+        <h1>listing {{clients|length}} clients</h1>
+      {% endif %}
+
+      <h3>visit the <a href="{{path}}/new">new</a> page to create clients</h3>
+
+      <div class="list">
+        {% for c in clients %}
+          {% include "parts/client.html" %}
+        {% endfor %}
+      </div>
+    </main>
+    <script src="{{path}}/static/client.js"></script>
+  </body>
+</html>

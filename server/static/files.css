@@ -1,0 +1,47 @@
+.path {
+  color: var(--bright-1);
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.details {
+  margin-top: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--bright-2);
+}
+
+.details strong {
+  color: var(--bright-1);
+}
+
+.list {
+  width: 100%;
+  margin-top: 10px;
+  border-collapse: collapse;
+}
+
+.list tr th, .list tr td {
+  padding: 4px;
+  font-size: 14px;
+  border: solid 1px var(--bright-4);
+}
+
+.list tr th{
+  color: var(--bright-1);
+  text-align: left;
+  font-weight: 900;
+}
+
+.list tr td{
+  color: var(--bright-2);
+  font-weight: 500;
+}
+
+.dir-link::after {
+  content: "";
+}
+
+.dir-link::before {
+  content: "";
+}

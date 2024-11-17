@@ -1,0 +1,103 @@
+<div class="client">
+  <div class="header">
+    {% if c.IsActive() %}
+      <h1 class="id active">{{c.ID}}</h1>
+    {% else %}
+      <h1 class="id inactive">{{c.ID}}</h1>
+    {% endif %}
+
+    {% if c.IsActive() %}
+      <div class="link-list">
+        <a href="{{path}}/c/{{c.ID}}/run">run</a>
+        <p>.</p>
+        <a href="{{path}}/c/{{c.ID}}/shell">shell</a>
+        <p>.</p>
+        <a href="{{path}}/c/{{c.ID}}/files">files</a>
+        <p>.</p>
+        <a href="{{path}}/c/{{c.ID}}/ps">processes</a>
+        <p>.</p>
+        <a id="remove" href="{{path}}/c/{{c.ID}}/remove">remove</a>
+      </div>
+    {% else %}
+      <div class="link-list">
+        <a class="inactive-link" href="#">run</a>
+        <p>.</p>
+        <a class="inactive-link" href="#">shell</a>
+        <p>.</p>
+        <a class="inactive-link" href="#">files</a>
+        <p>.</p>
+        <a class="inactive-link" href="#">processes</a>
+        <p>.</p>
+        <a id="remove" href="{{path}}/c/{{c.ID}}/remove">remove</a>
+      </div>
+    {% endif %}
+  </div>
+
+  <table>
+    {% if c.IPs|length != 0 %}
+      <tr>
+        <td>IP addresses</td>
+        <td>
+          {% for ip in c.IPs %}
+            <a href="https://ipinfo.io/{{ip}}">{{ip}}</a>
+          {% endfor %}
+        </td>
+      </tr>
+    {% endif %}
+
+    <tr>
+      <td>operating system details</td>
+      <td>
+        {% if c.OS == "" %}
+          unknown
+        {% else %}
+          {{c.OS}}
+        {% endif %}
+      </td>
+    </tr>
+
+    <tr>
+      <td>CPU cores</td>
+      <td>
+        {% if c.Cores == 0 %}
+          unknown
+        {% else %}
+          {{c.Cores}}
+        {% endif %}
+      </td>
+    </tr>
+
+    <tr>
+      <td>memory</td>
+      <td>
+        {% if c.Memory == 0 %}
+          unknown
+        {% else %}
+          {{c.HumanMem()}}
+        {% endif %}
+      </td>
+    </tr>
+
+    <tr>
+      <td>first connection</td>
+      <td>
+        {% if c.Connected %}
+          {{c.FirstCon.Format("15:04:05 02/01/06")}}
+        {% else %}
+          never
+        {% endif %}
+      </td>
+    </tr>
+
+    <tr>
+      <td>last connection</td>
+      <td>
+        {% if c.Connected %}
+          {{c.LastCon.Format("15:04:05 02/01/06")}}
+        {% else %}
+          never
+        {% endif %}
+      </td>
+    </tr>
+  </table>
+</div>

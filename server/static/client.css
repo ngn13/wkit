@@ -1,0 +1,77 @@
+.client {
+  border: solid 1px var(--bright-4);
+  padding: 8px;
+}
+
+.client .id {
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--bright-1);
+}
+
+.client .header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 0 8px 0;
+}
+
+.client .active::after {
+  font-weight: 600;
+  content: " (active)";
+  color: var(--red-1);
+}
+
+.client .inactive::after {
+  font-weight: 600;
+  content: " (inactive)";
+  color: var(--bright-2);
+}
+
+.client .inactive-link {
+  color: var(--bright-2);
+  cursor: not-allowed;
+}
+
+.client .inactive-link:hover {
+  color: var(--bright-2);
+}
+
+.client table {
+  margin: 5px 0 5px 0;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.client td {
+  border: solid 1px var(--bright-3);
+  font-size: 14px;
+  padding: 4px;
+}
+
+.client td a{
+  color: var(--bright-2);
+  text-decoration: none;
+}
+
+.client td a::after {
+  content: "";
+}
+
+.client td a::before {
+  content: "";
+}
+
+.client td a:hover {
+  text-decoration: underline;
+}
+
+.client td:first-child {
+  color: var(--bright-1);
+  font-weight: 700;
+}
+
+.client td:last-child {
+  color: var(--bright-2);
+}

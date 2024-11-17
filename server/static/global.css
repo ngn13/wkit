@@ -1,0 +1,177 @@
+/*
+ * global stuff
+*/
+:root {
+  --dark-1: #000;
+  --dark-2: #101010;
+
+  --bright-1: #f0f0f0;
+  --bright-2: #b0b0b0;
+  --bright-3: #505050;
+  --bright-4: #909090;
+
+  --red-1: #fc160a;
+  --red-2: #f99d98;
+
+  --blue-1: #0a56fc;
+  --cyan-1: #0afcf8;
+  --yellow-1: #f8fc0a;
+}
+
+::selection {
+  background: rgba(100, 100, 100, 0.5);
+  text-decoration: underline;
+}
+
+* {
+  box-sizing:border-box;
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  background: var(--dark-1);
+  font-family: monospace;
+  overflow-x: hidden;
+  height: 100vh;
+}
+
+/*
+ * navbar (views/parts/navbar.html)
+*/
+navbar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding-bottom: 10px;
+  padding: 12px;
+  gap: 10px;
+}
+
+navbar img {
+  width: 50px;
+}
+
+navbar .name {
+  display: inline;
+  flex-direction: row;
+  align-items: end;
+  margin-left: 3px;
+}
+
+navbar .name span:first-child {
+  color: var(--red-1);
+  font-weight: 900;
+  font-size: 18px;
+  vertical-align: bottom;
+}
+
+navbar .name span:last-child {
+  color: var(--bright-2);
+  font-weight: 400;
+  font-size: 18px;
+  vertical-align: bottom;
+}
+
+navbar .content {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 2px;
+}
+
+navbar .links {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2px 5px 0 3px;
+}
+
+.link-list {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.link-list p {
+  color: var(--bright-3);
+  font-weight: 100;
+  font-size: 14px;
+  margin: 0 1px 0 1px;
+}
+
+/*
+ * default element styles
+*/
+a {
+  color: var(--red-2);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+a:hover {
+  font-weight: 700;
+  color: var(--red-1);
+}
+
+a::before {
+  content: "["
+}
+
+a::after {
+  content: "]"
+}
+
+input, textarea, select {
+  border: solid 1px var(--bright-2);
+  background: none;
+  color: var(--bright-1);
+  outline: none;
+  padding: 4px;
+  font-size: 14px;
+}
+
+button {
+  border: solid 1px var(--bright-2);
+  background: none;
+  color: var(--bright-1);
+  outline: none;
+  padding: 4px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+main {
+  padding: 15px;
+}
+
+/*
+ * other custom element styles
+*/
+.labelbox {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: start;
+  gap: 3px;
+}
+
+.checkbox {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  border: solid 1px var(--bright-2);
+  padding: 4px;
+  gap: 3px;
+}
+
+.labelbox label, .checkbox label{
+  font-weight: 900;
+  color: var(--bright-2);
+}
+
+.labelbox > * {
+  width: 100%;
+}

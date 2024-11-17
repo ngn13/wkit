@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {% include "parts/header.html" %}
+    <title>shrk / login</title>
+    <link href="{{path}}/static/login.css" rel="stylesheet">
+  </head>
+  <body>
+    {% include "parts/navbar.html" %}
+    <main>
+      <h1>login</h1>
+      <h3>please login in order to access this page</h3>
+
+      {% if error %}
+        <h3 class="error">login failed: {{error}}</h3>
+      {% endif %}
+
+      <form action="login" method="POST">
+        <input type="password" name="password" placeholder="enter your password" autofocus>
+        <button>login</button>
+      </form>
+    </main>
+  </body>
+</html>

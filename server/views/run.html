@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {% include "parts/header.html" %}
+    <title>shrk / {{client.ID}} / run</title>
+    <link href="{{path}}/static/run.css" rel="stylesheet">
+  </head>
+  <body>
+    {% include "parts/navbar.html" %}
+    <main>
+      <h1>run a shell command</h1>
+      <h3>enter a command to run with an available shell as a child process</h3>
+
+      <form action="run" method="POST">
+        <textarea type="text" name="cmd" placeholder="echo hello everbody my name is welcome" autofocus></textarea>
+        <br>
+        <button>send</button>
+      </form>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {% include "parts/header.html" %}
+    <title>shrk / {{client.ID}} / processes</title>
+    <link href="{{path}}/static/ps.css" rel="stylesheet">
+  </head>
+  <body>
+    {% include "parts/navbar.html" %}
+    <main>
+      <h1 class="title">process list</h1>
+
+      <h3 class="details">listing <strong>{{processes|length}}</strong> processes</h3>
+
+      <table class="list">
+        <tr>
+          <th>Actions</th>
+          <th>PID</th>
+          <th>PPID</th>
+          <th>UID</th>
+          <th>GID</th>
+          <th>Start time</th>
+          <th>Command line</th>
+        </tr>
+        {% for p in processes %}
+          <tr>
+            <td>
+              <a href="protect?p={{p.PID}}">protect</a>
+            </td>
+            <td>{{p.PID}}</td>
+            <td>{{p.PPID}}</td>
+            <td>{{p.UID}}</td>
+            <td>{{p.GID}}</td>
+            <td>{{p.UsedMem()}}</td>
+            <td>{{p.Cmdline}}</td>
+          </tr>
+        {% endfor %}
+      </table>
+    </main>
+  </body>
+</html>

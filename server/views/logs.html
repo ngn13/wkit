@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {% include "parts/header.html" %}
+    <title>shrk / logs</title>
+    <link href="{{path}}/static/logs.css" rel="stylesheet">
+  </head>
+  <body>
+    {% include "parts/navbar.html" %}
+    <main>
+      <h1>server logs</h1>
+      <textarea readonly>{{content}}</textarea>
+    </main>
+  </body>
+</html>

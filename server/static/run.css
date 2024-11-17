@@ -1,0 +1,30 @@
+h1 {
+  color: var(--bright-1);
+  font-size: 18px;
+  font-weight: 900;
+}
+
+h3 {
+  margin-top: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--bright-2);
+}
+
+form {
+  margin-top: 10px;
+  width: 450px;
+}
+
+form >  * {
+  width: 100%;
+}
+
+form textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+form button {
+  margin-top: 6px;
+}

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {% include "parts/header.html" %}
+    <title>shrk / {{client.ID}} / shell</title>
+    <link href="{{path}}/static/shell.css" rel="stylesheet">
+  </head>
+  <body>
+    {% include "parts/navbar.html" %}
+    <main>
+      <h1>get a reverse shell</h1>
+      <h3>enter the address and the port for your TCP listener</h3>
+
+      <form action="shell" method="POST">
+        <div class="labelbox">
+          <label>address (IP/domain)</label>
+          <input type="text" name="addr" placeholder="193.106.196.85" autofocus>
+        </div>
+        
+        <div class="labelbox">
+          <label>port number</label>
+          <input type="number" name="port" min="1" max="65535" placeholder="4000">
+        </div>
+
+        <button type="submit">send</button>
+      </form>
+    </main>
+  </body>
+</html>

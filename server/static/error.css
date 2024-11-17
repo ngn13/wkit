@@ -1,0 +1,12 @@
+h1 {
+  color: var(--bright-1);
+  font-size: 18px;
+  font-weight: 900;
+}
+
+h3 {
+  margin: 4px 0 10px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--bright-2);
+}
