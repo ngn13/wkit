@@ -1,9 +1,10 @@
 GOSRCS = $(shell find . -type f -name '*.go')
+CGO_ENABLED = 1
 
 all: shrk_server.elf
 
 shrk_server.elf: $(GOSRCS)
-	go build -o $@
+	CGO_ENABLED=$(CGO_ENABLED) go build -o $@
 
 format:
 	gofmt -s -w .

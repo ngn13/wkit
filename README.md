@@ -1,5 +1,5 @@
 
-<img align="left" width="100" height="150" src="assets/shrk.png">
+<img align="left" width="100" height="100" src="assets/shrk.png">
 
 # shrk | stealthy rootkit for modern kernels
 shrk is a free (as in freedom) and open source GNU/Linux LKM rootkit for modern 64 bit kernels,
@@ -25,7 +25,7 @@ it comes with an userland agent, DNS based C2 server and a web interface
 ## installation
 to install the server, you can use docker:
 ```bash
-docker run -v $PWD/data:/srv/data                    \
+docker run -v $PWD/data:/shrk/server/data            \
            -p 1053:1053 -p 7070:7070                 \
            -e SHRK_PASSWORD=supersecret              \
            -e SHRK_PATH=/no_one_here                 \
