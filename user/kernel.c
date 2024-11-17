@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <libgen.h>
 
 #include <errno.h>
 #include <fcntl.h>
@@ -87,15 +88,32 @@ end:
 }
 
 bool kernel_unload() {
-  if (!kernel_send(KERNEL_CMD_DESTRUCT, "\x00", 1))
-    return false;
+  char *module_name = NULL, *module_path = strdup(SHRK_MODULE), *c = 0;
+  bool ret = false;
 
-  if (syscall(SYS_delete_module, "shrk", O_NONBLOCK) != 0) {
-    debug_err("failed to unload the kernel module");
-    return false;
+  if (!kernel_send(KERNEL_CMD_DESTRUCT, "\x00", 1))
+    goto end;
+
+  // get the module name
+  if((module_name = basename(module_path)) == NULL){
+    debug_err("failed to obtain the kernel module name");
+    goto end;
   }
 
-  return true;
+  // remove the extension
+  for(c = module_name; *c != 0; c++)
+    if(*c == '.')
+      *c = 0;
+
+  if (syscall(SYS_delete_module, module_name, O_NONBLOCK) != 0) {
+    debug_err("failed to unload the kernel module");
+    goto end;
+  }
+
+  ret = true;
+end:
+  free(module_path);
+  return ret;
 }
 
 bool kernel_send(kernel_cmd_t cmd, void *arg, uint64_t len) {

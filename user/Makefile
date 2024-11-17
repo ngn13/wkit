@@ -7,7 +7,7 @@ SHRK_DEBUG       = 1
 SHRK_DEBUG_DUMP  = 0
 SHRK_CLIENT_ID   = DEBUGID0
 SHRK_CLIENT_KEY  = DEBUGINGKEY0
-SHRK_MODULE      = ../kernel/shrk-$(SHRK_CLIENT_ID).ko
+SHRK_MODULE      = ../kernel/shrk_$(SHRK_CLIENT_ID).ko
 SHRK_SAVE_FILE   = /etc/shrk_save_$(SHRK_CLIENT_ID)
 SHRK_SERVER_ADDR = 127.0.0.1
 SHRK_SERVER_PORT = 1053
@@ -26,9 +26,9 @@ VARS    = -DSHRK_DEBUG=$(SHRK_DEBUG)                 \
 CFLAGS  = -O3
 INCLUDE =
 
-all: shrk-user.elf
+all: shrk_user.elf
 
-shrk-user.elf: $(CSRCS) $(HSRCS)
+shrk_user.elf: $(CSRCS) $(HSRCS)
 	gcc $(CFLAGS) $(INCLUDE) $(VARS) $(CSRCS) -o $@
 
 format:
