@@ -5,12 +5,12 @@
 #include <stdbool.h>
 #include <sys/syscall.h>
 
+#include <libgen.h>
 #include <limits.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <libgen.h>
 
 #include <errno.h>
 #include <fcntl.h>

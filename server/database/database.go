@@ -54,6 +54,11 @@ func (d *Type) Load() error {
 		err error
 	)
 
+	// dont load anything in debug mode
+	if d.Conf.Debug {
+		return nil
+	}
+
 	if df, err = os.Open(d.Path); err != nil && !os.IsNotExist(err) {
 		log.Debg("failed to open the database file for loading: %s", err.Error())
 		return err

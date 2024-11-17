@@ -1,14 +1,17 @@
 GOSRCS = $(shell find . -type f -name '*.go')
 
-all: shrk-server.elf
+all: shrk_server.elf
 
-shrk-server.elf: $(GOSRCS)
+shrk_server.elf: $(GOSRCS)
 	go build -o $@
 
 format:
 	gofmt -s -w .
 
-debug:
-	SHRK_DEBUG=1 SHRK_PATH=/test SHRK_PASSWORD=test ./shrk-server.elf
+clean:
+	rm *.elf
 
-.PHONY: format
+debug:
+	SHRK_DEBUG=1 SHRK_PATH=/test SHRK_PASSWORD=test ./shrk_server.elf
+
+.PHONY: format clean debug

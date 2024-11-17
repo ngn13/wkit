@@ -4,7 +4,7 @@
 #if SHRK_DEBUG == 1
 #define debg(...) print_debug(__func__, __VA_ARGS__)
 #else
-#define debg(...)       asm("nop")
+#define debg(...) asm("nop")
 #endif
 
 void     print_debug(const char *caller, char *msg, ...);

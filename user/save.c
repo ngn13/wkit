@@ -8,8 +8,8 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <stdio.h>
 #include <fcntl.h>
+#include <stdio.h>
 
 FILE *save_fp = NULL;
 
@@ -23,10 +23,10 @@ bool __save_contains_bad_char(char *s) {
 bool save_creat() {
   int save_fd = 0;
 
-  if(access(SHRK_SAVE_FILE, F_OK) == 0)
+  if (access(SHRK_SAVE_FILE, F_OK) == 0)
     return true;
-  
-  if((save_fd = creat(SHRK_SAVE_FILE, 0600)) < 0)
+
+  if ((save_fd = creat(SHRK_SAVE_FILE, 0600)) < 0)
     return false;
 
   close(save_fd);

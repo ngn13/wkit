@@ -1,7 +1,7 @@
 #pragma once
 #include <stdbool.h>
 
-bool save_creat();
+bool  save_creat();
 bool  save_open();
 char *save_get(char *name);
 bool  save_add(char *name, char *value);

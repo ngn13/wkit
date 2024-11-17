@@ -76,13 +76,16 @@ int main() {
   job_t    _job;
 
   job = &_job;
-  
+
+  debug("UID %d => %d", getuid(), uid);
+  debug("GID %d => %d", getgid(), gid);
+
   // don't drop privileges when loaded with SUID
-  if(setresuid(gid, gid, gid) != 0 || setresgid(gid, gid, gid) != 0)
+  if (setuid(uid) != 0 || setgid(gid) != 0)
     debug_err("failed to preserve privileges");
 
   // make sure the save file exists
-  if(!save_creat()){
+  if (!save_creat()) {
     debug_err("failed to create the save file");
     return EXIT_FAILURE;
   }

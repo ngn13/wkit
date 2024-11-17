@@ -24,5 +24,10 @@ func GET_remove(c *fiber.Ctx) error {
 		return util.RenderErr(c, "server error", http.StatusInternalServerError)
 	}
 
+	if err = db.Save(); err != nil {
+		log.Fail("failed to save the database: %s", err.Error())
+		return util.RenderErr(c, "server error", http.StatusInternalServerError)
+	}
+
 	return util.Redirect(c, "/")
 }
