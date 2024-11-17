@@ -1,7 +1,7 @@
 ######################
 ## build the server ##
 ######################
-FROM golang:1.23.2 as go
+FROM golang:1.23.3 as go
 
 COPY server /server
 WORKDIR /server
